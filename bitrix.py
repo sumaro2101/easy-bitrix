@@ -1,8 +1,15 @@
+import asyncio
+from http import HTTPStatus
+from typing import Coroutine
+from httpx import AsyncClient, HTTPError, ReadTimeout, ConnectError, HTTPStatusError, RequestError
 from json import loads
 from logging import info
 from time import sleep
 from requests import adapters, post, exceptions
 from multidimensional_urlencode import urlencode
+
+from exeptions import EmptyMethodError
+from common import LogicErrors, NetworkErrors
 
 
 adapters.DEFAULT_RETRIES = 10
@@ -16,6 +23,11 @@ class Bitrix24(object):
     oauth_url = 'https://oauth.bitrix.info/oauth/token/'
     # Timeout for API request in seconds
     timeout = 60
+    limit_requests = 5
+
+    HTTPStatusErrors = {
+        HTTPStatus.NOT_FOUND: NetworkErrors.NOT_FOUND_ERROR,
+    }
 
     def __init__(self, domain, auth_token, refresh_token='', client_id='', client_secret='', high_level_domain='ru'):
         """Create Bitrix24 API object
@@ -35,6 +47,51 @@ class Bitrix24(object):
         self.client_id = client_id
         self.client_secret = client_secret
         self.high_level_domain = high_level_domain
+
+    async def _async_request(self, client: AsyncClient, semaphore: asyncio.Semaphore, method: str, params1=None, params2=None, params3=None, params4=None) -> dict:
+        if not method:
+            raise EmptyMethodError(LogicErrors.METHOD_EMPTY_ERROR)
+        method = str(method)
+        encoded_parameters = ''
+
+        for i in [params1, params2, params3, params4, {'auth': self.auth_token}]:
+            if i is not None:
+                encoded_parameters += urlencode(i) + '&'
+
+        r = dict()
+
+        url = self.api_url % (self.domain, self.high_level_domain, method)
+        r = await self._fetch_async_result(client, semaphore, encoded_url=url)
+        result = loads(r)
+        return result
+
+    async def _fetch_async_result(self, client: AsyncClient, semaphore: asyncio.Semaphore, encoded_url: str) -> str:
+        async with semaphore:
+            result = await client.post(encoded_url, timeout=self.timeout)
+            result.raise_for_status()
+            return result.text
+
+    async def do_async_requests(self, urls_params: list) -> list[dict]:
+        """
+        Args:
+            urls_params (list): Будущая доработка с внедрением логики по методу + параметру
+        """
+        semaphore = asyncio.Semaphore(self.limit_requests)
+        list_of_responses = list()
+
+        with AsyncClient as client:
+            request_coros = [self._async_request(client, semaphore, url_param)
+                             for url_param
+                             in urls_params]
+            for response in asyncio.as_completed(request_coros):
+                try:
+                    status = await response
+                    list_of_responses.append(status)
+                except HTTPStatusError as exc:
+                    ...
+                except RequestError as exc:
+                    ...
+        return list_of_responses
 
     def call(self, method, params1=None, params2=None, params3=None, params4=None):
         """Call Bitrix24 API method
