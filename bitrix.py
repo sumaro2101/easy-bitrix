@@ -1,6 +1,5 @@
 import asyncio
 from http import HTTPStatus
-from typing import Coroutine
 from httpx import AsyncClient, HTTPError, ReadTimeout, ConnectError, HTTPStatusError, RequestError
 from json import loads
 from logging import info
@@ -8,7 +7,7 @@ from time import sleep
 from requests import adapters, post, exceptions
 from multidimensional_urlencode import urlencode
 
-from exeptions import EmptyMethodError
+from exeptions import EmptyMethodError, UnsupportedDomain
 from common import LogicErrors, NetworkErrors
 
 
@@ -25,10 +24,6 @@ class Bitrix24(object):
     timeout = 60
     limit_requests = 5
 
-    HTTPStatusErrors = {
-        HTTPStatus.NOT_FOUND: NetworkErrors.NOT_FOUND_ERROR,
-    }
-
     def __init__(self, domain, auth_token, refresh_token='', client_id='', client_secret='', high_level_domain='ru'):
         """Create Bitrix24 API object
         :param domain: Cloud Bitrix24 third level domain
@@ -39,7 +34,7 @@ class Bitrix24(object):
         :param high_level_domain: High level domain of Bitrix24 cloud domain
         """
         if high_level_domain not in ('ru', 'com', 'de'):
-            raise Exception('Unsupported high level domain')
+            raise UnsupportedDomain(LogicErrors.UNSUPPERTED_HIGH_LEVEL_DOMAIN)
 
         self.domain = domain
         self.auth_token = auth_token
@@ -48,7 +43,12 @@ class Bitrix24(object):
         self.client_secret = client_secret
         self.high_level_domain = high_level_domain
 
-    async def _async_request(self, client: AsyncClient, semaphore: asyncio.Semaphore, method: str, params1=None, params2=None, params3=None, params4=None) -> dict:
+    async def _async_request(self,
+                             client: AsyncClient,
+                             semaphore: asyncio.Semaphore,
+                             method: str,
+                             params1=None, params2=None, params3=None, params4=None,
+                             ) -> dict:
         if not method:
             raise EmptyMethodError(LogicErrors.METHOD_EMPTY_ERROR)
         method = str(method)
@@ -88,7 +88,7 @@ class Bitrix24(object):
                     status = await response
                     list_of_responses.append(status)
                 except HTTPStatusError as exc:
-                    ...
+                    print(exc.response)
                 except RequestError as exc:
                     ...
         return list_of_responses

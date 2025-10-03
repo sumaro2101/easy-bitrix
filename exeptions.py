@@ -1,2 +1,6 @@
 class EmptyMethodError(Exception):
     ...
+
+
+class UnsupportedDomain(Exception):
+    ...
