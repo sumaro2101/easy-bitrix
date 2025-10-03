@@ -4,49 +4,39 @@ from common import FilterOperations
 class Operation[T: dict[str, str]]:
 
     @staticmethod
-    def LTE(param: dict[str, str]) -> dict[str, str]:
-        key, value = next(iter(param.items()))
-        new_key = FilterOperations.LTE.format(key)
-        return {new_key: value}
+    def LTE(param: T) -> T:
+        return _operation(param, FilterOperations.LTE)
 
     @staticmethod
-    def EQ(param: dict[str, str]) -> dict[str, str]:
-        key, value = next(iter(param.items()))
-        new_key = FilterOperations.LTE.format(key)
-        return {new_key: value}
+    def EQ(param: T) -> T:
+        return _operation(param, FilterOperations.EQ)
 
     @staticmethod
-    def NEQ(param: dict[str, str]) -> dict[str, str]:
-        key, value = next(iter(param.items()))
-        new_key = FilterOperations.LTE.format(key)
-        return {new_key: value}
+    def NEQ(param: T) -> T:
+        return _operation(param, FilterOperations.NEQ)
 
     @staticmethod
-    def GT(param: dict[str, str]) -> dict[str, str]:
-        key, value = next(iter(param.items()))
-        new_key = FilterOperations.LTE.format(key)
-        return {new_key: value}
+    def GT(param: T) -> T:
+        return _operation(param, FilterOperations.GT)
 
     @staticmethod
-    def GTE(param: dict[str, str]) -> dict[str, str]:
-        key, value = next(iter(param.items()))
-        new_key = FilterOperations.LTE.format(key)
-        return {new_key: value}
+    def GTE(param: T) -> T:
+        return _operation(param, FilterOperations.GTE)
 
     @staticmethod
-    def LT(param: dict[str, str]) -> dict[str, str]:
-        key, value = next(iter(param.items()))
-        new_key = FilterOperations.LTE.format(key)
-        return {new_key: value}
+    def LT(param: T) -> T:
+        return _operation(param, FilterOperations.LT)
 
     @staticmethod
-    def LIKE(param: dict[str, str]) -> dict[str, str]:
-        key, value = next(iter(param.items()))
-        new_key = FilterOperations.LTE.format(key)
-        return {new_key: value}
+    def LIKE(param: T) -> T:
+        return _operation(param, FilterOperations.LIKE)
 
     @staticmethod
-    def IN(param: dict[str, str]) -> dict[str, str]:
-        key, value = next(iter(param.items()))
-        new_key = FilterOperations.LTE.format(key)
-        return {new_key: value}
+    def IN(param: T) -> T:
+        return _operation(param, FilterOperations.IN)
+
+
+def _operation[T: dict[str, str]](param: T, opetator: str) -> T:
+    key, value = next(iter(param.items()))
+    new_key = opetator.format(key)
+    return {new_key: value}
