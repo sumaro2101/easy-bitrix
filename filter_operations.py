@@ -1,4 +1,6 @@
-from common import FilterOperations
+from common import FilterOperations, LogicErrors
+
+from exeptions import FilterParameterError
 
 
 class Operation[T: dict[str, str]]:
@@ -29,7 +31,11 @@ class Operation[T: dict[str, str]]:
 
     @staticmethod
     def IN(param: T) -> T:
-        return _base_operation(param, FilterOperations.IN)
+        return _contains_operation(param, FilterOperations.IN)
+
+    @staticmethod
+    def NOT_IN(param: T) -> T:
+        return _contains_operation(param, FilterOperations.NOT_IN)
 
     @staticmethod
     def LIKE(param: T) -> T:
@@ -51,6 +57,18 @@ def _like_operation[T: dict[str, str]](param: T,
     key, value = next(iter(param.items()))
     new_key = like_op.format(key)
     new_value = opetator.format(value)
+    return {new_key: new_value}
+
+
+def _contains_operation[T: dict[str, str]](param: T,
+                                           opetator: str,
+                                           ) -> T:
+    key, value = next(iter(param.items()))
+    new_key = opetator.format(key)
+    try:
+        new_value = list(value)
+    except TypeError:
+        raise FilterParameterError(LogicErrors.FILTER_PARAMETER_ERROR.value)
     return {new_key: new_value}
 
 

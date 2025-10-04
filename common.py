@@ -31,6 +31,7 @@ class FilterOperations(str, Enum):
 class LogicErrors(str, Enum):
     METHOD_EMPTY_ERROR = 'Method can`t be empty.'
     UNSUPPERTED_HIGH_LEVEL_DOMAIN = 'Unsupported high level domain.'
+    FILTER_PARAMETER_ERROR = 'This parameter has wrong type.'
 
 
 class NetworkErrors(str, Enum):
