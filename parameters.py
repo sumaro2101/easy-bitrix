@@ -56,19 +56,25 @@ class Select:
         return self._fields
 
 
-class Filter:
+class Filter[T: dict[str, str | list[str]]]:
     """
     """
+    def __init__(self, **filters: T):
+        self._filters = filters
+
+    @property
+    def compare(self) -> T:
+        return self._filters
 
 
-class Fields:
+class Fields[T: dict[str, str]]:
     """
     """
-    def __init__(self, *fields: dict[str, str]):
+    def __init__(self, *fields: T):
         self._fields = fields
 
     @property
-    def compare(self) -> dict[str, str]:
+    def compare(self) -> T:
         fields = dict()
         for field in self._fields:
             fields.update(field)
