@@ -21,10 +21,11 @@ class FilterOperations(str, Enum):
     LT = '<%s'
     LTE = '<=%s'
     START_LIKE = '%s%'
-    END_LIST = ('%' + '%s')
+    END_LIKE = ('%' + '%s')
     LIKE = ('%' + '%s' + '%')
     IN = '@%s'
     NOT_IN = '!@%s'
+    LIKE_OP = '%=%s'
 
 
 class LogicErrors(str, Enum):
