@@ -2,6 +2,7 @@ from unittest import TestCase
 
 from parameters import Parameter, Fields
 from filter_operations import Operation
+from exeptions import FilterParameterError
 
 
 class TestParameters(TestCase):
@@ -19,3 +20,11 @@ class TestParameters(TestCase):
     def test_operations(self):
         ready_param = Operation.END_LIKE(Parameter.TITLE('Tes'))
         self.assertEqual(ready_param, {'%=TITLE': '%Tes'})
+
+    def test_containce_operations(self):
+        ready_param = Operation.IN(Parameter.ASSIGNED_BY_ID([1, 6]))
+        self.assertEqual(ready_param, {'@ASSIGNED_BY_ID': [1, 6]})
+
+    def test_containce_operations_wrong(self):
+        with self.assertRaises(FilterParameterError):
+            ready_param = Operation.IN(Parameter.ASSIGNED_BY_ID('1'))

@@ -65,10 +65,9 @@ def _contains_operation[T: dict[str, str]](param: T,
                                            ) -> T:
     key, value = next(iter(param.items()))
     new_key = opetator.format(key)
-    try:
-        new_value = list(value)
-    except TypeError:
+    if not isinstance(value, (list, tuple, set)):
         raise FilterParameterError(LogicErrors.FILTER_PARAMETER_ERROR.value)
+    new_value = list(value)
     return {new_key: new_value}
 
 

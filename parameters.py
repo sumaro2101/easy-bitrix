@@ -17,11 +17,11 @@ class Parameter:
         return {ProductFields.TITLE.value: value}
 
     @staticmethod
-    def TYPE_ID(value: int) -> dict[str, str]:
+    def TYPE_ID(value: str | list[str]) -> dict[str, str | list[str]]:
         return {ProductFields.TYPE_ID.value: value}
 
     @staticmethod
-    def CATEGORY_ID(value: int) -> dict[str, str]:
+    def CATEGORY_ID(value: int | list[int]) -> dict[str, str | list[int]]:
         return {ProductFields.CATEGORY_ID.value: value}
 
     @staticmethod
@@ -37,7 +37,7 @@ class Parameter:
         return {ProductFields.IS_MANUAL_OPPORTUNITY.value: 'Y' if value else 'N'}
 
     @staticmethod
-    def ASSIGNED_BY_ID(value: int) -> dict[str, str]:
+    def ASSIGNED_BY_ID(value: int | list[int]) -> dict[str, list[int]]:
         return {ProductFields.ASSIGNED_BY_ID.value: value}
 
     @staticmethod
