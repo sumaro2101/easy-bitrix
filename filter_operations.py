@@ -41,7 +41,7 @@ class Operation[T: dict[str, str]]:
 
     @staticmethod
     def END_LIKE(param: T) -> T:
-        return _like_operation(param, FilterOperations.END_LIKE_LIKE)
+        return _like_operation(param, FilterOperations.END_LIKE)
 
 
 def _like_operation[T: dict[str, str]](param: T,

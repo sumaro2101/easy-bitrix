@@ -14,18 +14,18 @@ class ProductFields(str, Enum):
 
 
 class FilterOperations(str, Enum):
-    EQ = '=%s'
-    NEQ = '!=%s'
-    GT = '>%s'
-    GTE = '>=%s'
-    LT = '<%s'
-    LTE = '<=%s'
-    START_LIKE = '%s%'
-    END_LIKE = ('%' + '%s')
-    LIKE = ('%' + '%s' + '%')
-    IN = '@%s'
-    NOT_IN = '!@%s'
-    LIKE_OP = '%=%s'
+    EQ = '={}'
+    NEQ = '!={}'
+    GT = '>{}'
+    GTE = '>={}'
+    LT = '<{}'
+    LTE = '<={}'
+    START_LIKE = '{}%'
+    END_LIKE = '%{}'
+    LIKE = '%{}%'
+    IN = '@{}'
+    NOT_IN = '!@{}'
+    LIKE_OP = '%={}'
 
 
 class LogicErrors(str, Enum):
@@ -34,7 +34,7 @@ class LogicErrors(str, Enum):
 
 
 class NetworkErrors(str, Enum):
-    TIMEOUT_ERROR = 'Timeout waiting expired [%s sec].'
-    DECODE_ERROR = 'Error on decode api response [%s].'
-    MAX_RETRIES_ERROR = 'Max retries exceeded [%s]'
-    NOT_FOUND_ERROR = 'Page not found [%s]'
+    TIMEOUT_ERROR = 'Timeout waiting expired [{} sec].'
+    DECODE_ERROR = 'Error on decode api response [{}].'
+    MAX_RETRIES_ERROR = 'Max retries exceeded [{}]'
+    NOT_FOUND_ERROR = 'Page not found [{}]'
