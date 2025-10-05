@@ -1,5 +1,5 @@
 from typing import ClassVar
-from parameters import Product
+from parameters import Deal
 
 
 class BaseSelector:
@@ -22,7 +22,7 @@ class DealSelector(BaseSelector):
     @classmethod
     def get(cls, id: int) -> dict[str, str | dict[str, int]]:
         method = cls.method.format('get')
-        fields = Product.ID(id)
+        fields = Deal.ID(id)
         return {'method': method, 'fields': fields}
 
     @classmethod
