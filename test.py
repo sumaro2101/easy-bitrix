@@ -4,6 +4,8 @@ from parameters import Deal, Fields, Filter, Select
 from fields import DEAL_FIELD
 from filter_operations import Operation
 from exeptions import FilterParameterError
+from data_builder import CRMDataExecutor
+from common import BitrixCRMTypes
 
 
 class TestParameters(TestCase):
@@ -42,3 +44,8 @@ class TestParameters(TestCase):
     def test_select(self):
         select = Select(DEAL_FIELD.ASSIGNED_BY_ID, DEAL_FIELD.ID)
         self.assertEqual(select.compare, ['ASSIGNED_BY_ID', 'ID'])
+
+    def test_data_builer(self):
+        data = CRMDataExecutor(BitrixCRMTypes.DEAL.value).get(30)
+        self.assertEqual(data.method, 'crm.deal.get')
+        self.assertEqual(data.id, {'ID': 30})

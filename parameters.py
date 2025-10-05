@@ -1,4 +1,4 @@
-from fields import DEAL_FIELD
+from fields import DEAL_FIELD, LEAD_FIELD
 
 
 class Deal:

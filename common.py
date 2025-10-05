@@ -27,3 +27,14 @@ class FilterOperations(str, Enum):
     IN = '@{}'
     NOT_IN = '!@{}'
     LIKE_OP = '%={}'
+
+
+class BitrixCRMTypes(str, Enum):
+    LEAD = 'lead'
+    DEAL = 'deal'
+    CONTACT = 'contact'
+    COMPANY = 'company'
+    QUOTE = 'quote'
+    ADDRESS = 'address'
+    STATUS = 'status'
+    CURRENCY = 'currency'

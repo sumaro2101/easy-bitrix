@@ -1,18 +1,18 @@
-from dataclasses import dataclass, Field
+from dataclasses import dataclass, field
 
 
 @dataclass
 class SelectListData:
     method: str
-    select: list[str] = Field(default=['*'])
-    filter: dict[str, str | int | float | list[str | int | float]] = Field(default=dict())
-    order: dict[str, str | int | float] = Field(default=dict())
+    select: list[str] = field(default_factory=['*'])
+    filter: dict[str, str | int | float | list[str | int | float]] = field(default_factory=dict())
+    order: dict[str, str | int | float] = field(default_factory=dict())
 
 
 @dataclass
 class SelectGetData:
     method: str
-    id: int
+    id: dict[str, int]
 
 
 @dataclass
@@ -24,15 +24,15 @@ class GetFieldsData:
 class AddData:
     method: str
     fields: dict[str, str | int | float]
-    params: dict[str, str] = Field(default=dict())
+    params: dict[str, str] = field(default_factory=dict())
 
 
 @dataclass
 class UpdateData:
     method: str
-    id: int
-    fields: dict[str, str | int | float] = Field(default=dict())
-    params: dict[str, str] = Field(default=dict())
+    id: dict[str, int]
+    fields: dict[str, str | int | float] = field(default_factory=dict())
+    params: dict[str, str] = field(default_factory=dict())
 
 
 @dataclass
