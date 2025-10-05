@@ -1,15 +1,30 @@
 from typing import ClassVar
+from parameters import Product
 
 
 class BaseSelector:
     """
     Базовый селектор
     """
-    root: ClassVar[str | None] = None
+    method: ClassVar[str | None] = None
 
     @classmethod
-    def get(cls, id: str) -> None:
+    def get(cls, id: int) -> None:
         ...
 
-    def list(cls, select: list[str], filter: dict[str, str]) -> None:
+    def list(cls, select: list[str] | None, filter: dict[str, str] | None, order: dict[str, str] | None) -> None:
         ...
+
+
+class DealSelector(BaseSelector):
+    method = 'crm.deal.{}'
+
+    @classmethod
+    def get(cls, id: int) -> dict[str, str | dict[str, int]]:
+        method = cls.method.format('get')
+        fields = Product.ID(id)
+        return {'method': method, 'fields': fields}
+
+    @classmethod
+    def list(cls, select: list[str] | None, filter: dict[str, str] | None, order: dict[str, str] | None) -> None:
+        method = cls.method.format('list')
