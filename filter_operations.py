@@ -4,7 +4,17 @@ from exeptions import FilterParameterError
 
 
 class Operation[T: dict[str, str]]:
+    """
+    The Operation class provides convenient static methods for setting up
+    filters for any parameter in Bitrix24.
 
+    Each method corresponds to a specific filter operation (e.g., EQ, NEQ,
+    GT, LIKE, IN) and returns a properly formatted dictionary for use in
+    Bitrix24 API queries.
+
+    This class simplifies the process of building complex filter expressions
+    and ensures type safety and consistency across your codebase.
+    """
     @staticmethod
     def LTE(param: T) -> T:
         return _base_operation(param, FilterOperations.LTE)

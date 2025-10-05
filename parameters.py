@@ -1,48 +1,48 @@
-from common import PRODUCT_FIELDS
+from fields import PRODUCT_FIELD
 
 
 class Product:
     """
     The Product class provides static methods for formatting Bitrix24 product field parameters.
-    Each method corresponds to a field in the PRODUCT_FIELDS class and returns a string representation
+    Each method corresponds to a field in the PRODUCT_FIELD class and returns a string representation
     suitable for use in Bitrix24 API requests. This class helps to build query parameters in a consistent
     and type-safe way, reducing errors and improving code readability.
     """
     @staticmethod
     def ID(value: int) -> dict[str, str]:
-        return {PRODUCT_FIELDS.ID: value}
+        return {PRODUCT_FIELD.ID: value}
 
     @staticmethod
     def TITLE(value: str) -> dict[str, str]:
-        return {PRODUCT_FIELDS.TITLE: value}
+        return {PRODUCT_FIELD.TITLE: value}
 
     @staticmethod
     def TYPE_ID(value: str | list[str]) -> dict[str, str | list[str]]:
-        return {PRODUCT_FIELDS.TYPE_ID: value}
+        return {PRODUCT_FIELD.TYPE_ID: value}
 
     @staticmethod
     def CATEGORY_ID(value: int | list[int]) -> dict[str, str | list[int]]:
-        return {PRODUCT_FIELDS.CATEGORY_ID: value}
+        return {PRODUCT_FIELD.CATEGORY_ID: value}
 
     @staticmethod
     def STAGE_ID(value: str) -> dict[str, str]:
-        return {PRODUCT_FIELDS.STAGE_ID: value}
+        return {PRODUCT_FIELD.STAGE_ID: value}
 
     @staticmethod
     def OPPORTUNITY(value: float) -> dict[str, str]:
-        return {PRODUCT_FIELDS.OPPORTUNITY: value}
+        return {PRODUCT_FIELD.OPPORTUNITY: value}
 
     @staticmethod
     def IS_MANUAL_OPPORTUNITY(value: bool) -> dict[str, str]:
-        return {PRODUCT_FIELDS.IS_MANUAL_OPPORTUNITY: 'Y' if value else 'N'}
+        return {PRODUCT_FIELD.IS_MANUAL_OPPORTUNITY: 'Y' if value else 'N'}
 
     @staticmethod
     def ASSIGNED_BY_ID(value: int | list[int]) -> dict[str, list[int]]:
-        return {PRODUCT_FIELDS.ASSIGNED_BY_ID: value}
+        return {PRODUCT_FIELD.ASSIGNED_BY_ID: value}
 
     @staticmethod
     def DATE_CREATE(value: str) -> dict[str, str]:
-        return {PRODUCT_FIELDS.DATE_CREATE: value}
+        return {PRODUCT_FIELD.DATE_CREATE: value}
 
 
 class Select:

@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from parameters import Product, Fields, Filter, Select
-from common import PRODUCT_FIELDS
+from fields import PRODUCT_FIELD
 from filter_operations import Operation
 from exeptions import FilterParameterError
 
@@ -40,5 +40,5 @@ class TestParameters(TestCase):
                                            "!@CATEGORY_ID": [20, 1, 3], 'CATEGORY_ID': 10})
 
     def test_select(self):
-        select = Select(PRODUCT_FIELDS.ASSIGNED_BY_ID, PRODUCT_FIELDS.ID)
+        select = Select(PRODUCT_FIELD.ASSIGNED_BY_ID, PRODUCT_FIELD.ID)
         self.assertEqual(select.compare, ['ASSIGNED_BY_ID', 'ID'])
