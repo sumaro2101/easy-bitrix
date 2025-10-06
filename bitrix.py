@@ -8,7 +8,7 @@ from requests import adapters, post, exceptions
 from multidimensional_urlencode import urlencode
 
 from exeptions import EmptyMethodError, UnsupportedDomain
-from common import LogicErrors, NetworkErrors
+from common import LogicErrors, NetworkErrors, BitrixResponseErrors
 from dto import SelectData
 
 
@@ -55,7 +55,7 @@ class Bitrix24(object):
         if not method:
             raise EmptyMethodError(LogicErrors.METHOD_EMPTY_ERROR)
         if auth_token:
-            params_dict.update({'auth': self.auth_token})
+            params_dict.update({'auth': auth_token})
 
         url = self.api_url % (self.domain, self.high_level_domain, method)
         r = await self._fetch_async_result(client, semaphore,
@@ -92,7 +92,16 @@ class Bitrix24(object):
                     try:
                         bitrix_response = await response
                         if 'error' in bitrix_response:
-
+                            match bitrix_response['error']:
+                                case BitrixResponseErrors.QUERY_LIMIT_EXCEEDED.value:
+                                    await asyncio.sleep(1)
+                                    last_request = requests[place]
+                                    bitrix_response = await self._async_request(
+                                        client,
+                                        semaphore,
+                                        last_request,
+                                        auth_token,
+                                        )
                         list_of_responses.append(bitrix_response)
                     except HTTPStatusError as exc:
                         print(exc.response)
