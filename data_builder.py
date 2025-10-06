@@ -19,7 +19,13 @@ class CRMDataExecutor:
         _id = Deal.ID(id)
         return SelectGetData(method=method, id=_id)
 
-    def list(self, select: Select[str],
-             filter: Filter[dict[str, str | list[str, int, float]]],
-             order: dict[str, str] | None) -> SelectListData:
+    def list(self, select: Select[str] | None = None,
+             filter: Filter[dict[str, str | list[str, int, float]]] | None = None,
+             order: dict[str, str] | None = None) -> SelectListData:
         method = self.root.format(self._crm_type, 'list')
+        return SelectListData(
+            method=method,
+            select=select.compare if select else ['*'],
+            filter=filter.compare if filter else dict(),
+            order=order if order else dict(),
+        )

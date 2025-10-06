@@ -13,27 +13,27 @@ class Deal:
     and type-safe way, reducing errors and improving code readability.
     """
     @staticmethod
-    def ID(value: int) -> dict[str, str]:
+    def ID(value: T) -> dict[str, T]:
         return {DEAL_FIELD.ID: value}
 
     @staticmethod
-    def TITLE(value: str) -> dict[str, str]:
+    def TITLE(value: T) -> dict[str, T]:
         return {DEAL_FIELD.TITLE: value}
 
     @staticmethod
-    def TYPE_ID(value: str | list[str]) -> dict[str, str | list[str]]:
+    def TYPE_ID(value: T | list[T]) -> dict[str, T | list[T]]:
         return {DEAL_FIELD.TYPE_ID: value}
 
     @staticmethod
-    def CATEGORY_ID(value: int | list[int]) -> dict[str, str | list[int]]:
+    def CATEGORY_ID(value: T | list[T]) -> dict[str, T | list[T]]:
         return {DEAL_FIELD.CATEGORY_ID: value}
 
     @staticmethod
-    def STAGE_ID(value: str) -> dict[str, str]:
+    def STAGE_ID(value: T) -> dict[str, T]:
         return {DEAL_FIELD.STAGE_ID: value}
 
     @staticmethod
-    def OPPORTUNITY(value: float) -> dict[str, str]:
+    def OPPORTUNITY(value: T) -> dict[str, T]:
         return {DEAL_FIELD.OPPORTUNITY: value}
 
     @staticmethod
@@ -41,11 +41,11 @@ class Deal:
         return {DEAL_FIELD.IS_MANUAL_OPPORTUNITY: 'Y' if value else 'N'}
 
     @staticmethod
-    def ASSIGNED_BY_ID(value: int | list[int]) -> dict[str, list[int]]:
+    def ASSIGNED_BY_ID(value: T | list[T]) -> dict[str, T, list[T]]:
         return {DEAL_FIELD.ASSIGNED_BY_ID: value}
 
     @staticmethod
-    def DATE_CREATE(value: str) -> dict[str, str]:
+    def DATE_CREATE(value: T) -> dict[str, T]:
         return {DEAL_FIELD.DATE_CREATE: value}
 
 

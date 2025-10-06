@@ -45,7 +45,21 @@ class TestParameters(TestCase):
         select = Select(DEAL_FIELD.ASSIGNED_BY_ID, DEAL_FIELD.ID)
         self.assertEqual(select.compare, ['ASSIGNED_BY_ID', 'ID'])
 
-    def test_data_builer(self):
+    def test_data_builer_get(self):
         data = CRMDataExecutor(BitrixCRMTypes.DEAL.value).get(30)
         self.assertEqual(data.method, 'crm.deal.get')
         self.assertEqual(data.id, {'ID': 30})
+
+    def test_data_builder_list(self):
+        select = Select(DEAL_FIELD.ID, DEAL_FIELD.TITLE, DEAL_FIELD.DATE_CREATE)
+        _filter = Filter(Operation.LTE(Deal.OPPORTUNITY(10000.00)),
+                         Operation.END_LIKE(Deal.TITLE('_low')))
+        data = CRMDataExecutor(BitrixCRMTypes.DEAL.value).list(
+            select=select,
+            filter=_filter,
+        )
+        self.assertEqual(data.method, 'crm.deal.list')
+        self.assertEqual(data.select, ['ID', 'TITLE', 'DATE_CREATE'])
+        self.assertEqual(data.filter, {'<=OPPORTUNITY': 10000.00, '%=TITLE': '%_low'})
+        self.assertEqual(data.order, dict())
+        self.assertEqual({**data.__dict__}['select'], ['ID', 'TITLE', 'DATE_CREATE'])
