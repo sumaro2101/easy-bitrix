@@ -1,4 +1,8 @@
+from typing import Generic, TypeVar
 from fields import DEAL_FIELD, LEAD_FIELD
+
+
+T = TypeVar('T')
 
 
 class Deal:
@@ -45,18 +49,18 @@ class Deal:
         return {DEAL_FIELD.DATE_CREATE: value}
 
 
-class Select:
+class Select(Generic[T]):
     """
     """
-    def __init__(self, *fields: str):
+    def __init__(self, *fields: T):
         self._fields = fields
 
     @property
-    def compare(self) -> list[str]:
+    def compare(self) -> list[T]:
         return list(self._fields)
 
 
-class Filter[T: dict[str, str | list[str]]]:
+class Filter(Generic[T]):
     """
     """
     def __init__(self, *filters: T):
@@ -70,7 +74,7 @@ class Filter[T: dict[str, str | list[str]]]:
         return filters
 
 
-class Fields[T: dict[str, str]]:
+class Fields(Generic[T]):
     """
     """
     def __init__(self, *fields: T):
