@@ -14,6 +14,11 @@ class NetworkErrors(str, Enum):
     NOT_FOUND_ERROR = 'Page not found [{}]'
 
 
+class BitrixResponseErrors(str, Enum):
+    NO_AUTH_FOUND = 'NO_AUTH_FOUND'
+    QUERY_LIMIT_EXCEEDED = 'QUERY_LIMIT_EXCEEDED'
+
+
 class FilterOperations(str, Enum):
     EQ = '={}'
     NEQ = '!={}'

@@ -48,12 +48,14 @@ class Bitrix24(object):
                              client: AsyncClient,
                              semaphore: asyncio.Semaphore,
                              params: SelectData,
+                             auth_token: str | None = None,
                              ) -> dict:
         params_dict = params.__dict__
         method = params_dict.pop('method')
         if not method:
             raise EmptyMethodError(LogicErrors.METHOD_EMPTY_ERROR)
-        params_dict.update({'auth': self.auth_token})
+        if auth_token:
+            params_dict.update({'auth': self.auth_token})
 
         url = self.api_url % (self.domain, self.high_level_domain, method)
         r = await self._fetch_async_result(client, semaphore,
@@ -81,17 +83,21 @@ class Bitrix24(object):
         list_of_responses = list()
 
         with AsyncClient as client:
-            request_coros = [self._async_request(client, semaphore, request)
+            auth_token = self.refresh_tokens()
+            request_coros = [self._async_request(client, semaphore, request, self.auth_token)
                              for request
                              in requests]
-            for response in asyncio.as_completed(request_coros):
-                try:
-                    status = await response
-                    list_of_responses.append(status)
-                except HTTPStatusError as exc:
-                    print(exc.response)
-                except RequestError as exc:
-                    ...
+            if auth_token:
+                for place, response in enumerate(asyncio.as_completed(request_coros)):
+                    try:
+                        bitrix_response = await response
+                        if 'error' in bitrix_response:
+
+                        list_of_responses.append(bitrix_response)
+                    except HTTPStatusError as exc:
+                        print(exc.response)
+                    except RequestError as exc:
+                        ...
         return list_of_responses
 
     def call(self, method, params1=None, params2=None, params3=None, params4=None):
