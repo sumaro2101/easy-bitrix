@@ -9,6 +9,7 @@ from multidimensional_urlencode import urlencode
 
 from exeptions import EmptyMethodError, UnsupportedDomain
 from common import LogicErrors, NetworkErrors
+from dto import SelectData
 
 
 adapters.DEFAULT_RETRIES = 10
@@ -46,7 +47,7 @@ class Bitrix24(object):
     async def _async_request(self,
                              client: AsyncClient,
                              semaphore: asyncio.Semaphore,
-                             params: dict[str, list[str], dict[str, str | list[str]]],
+                             params: SelectData,
                              ) -> dict:
         params_dict = params.__dict__
         method = params_dict.pop('method')
@@ -73,18 +74,16 @@ class Bitrix24(object):
             result.raise_for_status()
             return result.text
 
-    async def do_async_requests(self, urls_params: list) -> list[dict]:
+    async def do_async_requests(self, requests: list[SelectData]) -> list[dict[str, str]]:
         """
-        Args:
-            urls_params (list): Будущая доработка с внедрением логики по методу + параметру
         """
         semaphore = asyncio.Semaphore(self.limit_requests)
         list_of_responses = list()
 
         with AsyncClient as client:
-            request_coros = [self._async_request(client, semaphore, url_param)
-                             for url_param
-                             in urls_params]
+            request_coros = [self._async_request(client, semaphore, request)
+                             for request
+                             in requests]
             for response in asyncio.as_completed(request_coros):
                 try:
                     status = await response

@@ -1,12 +1,22 @@
+from abc import ABC, abstractmethod
 from typing import ClassVar
 
 from parameters import Deal, Select, Filter
-from dto import SelectGetData, SelectListData
+from dto import SelectGetData, SelectListData, SelectData
 
 
-class CRMDataExecutor:
+class DataExecutor(ABC):
+    root: ClassVar[str]
+
+    @abstractmethod
+    def get(self, id: int) -> SelectData: ...
+
+    @abstractmethod
+    def list(self, select: ..., filter: ..., order: ...) -> SelectData: ...
+
+
+class CRMDataExecutor(DataExecutor):
     """
-    Базовый селектор
     """
 
     root: ClassVar[str] = 'crm.{}.{}'
