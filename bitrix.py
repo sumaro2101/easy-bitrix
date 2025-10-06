@@ -46,28 +46,30 @@ class Bitrix24(object):
     async def _async_request(self,
                              client: AsyncClient,
                              semaphore: asyncio.Semaphore,
-                             method: str,
-                             params1=None, params2=None, params3=None, params4=None,
+                             params: dict[str, list[str], dict[str, str | list[str]]],
                              ) -> dict:
+        params_dict = params.__dict__
+        method = params_dict.pop('method')
         if not method:
             raise EmptyMethodError(LogicErrors.METHOD_EMPTY_ERROR)
-        method = str(method)
-        encoded_parameters = ''
-
-        for i in [params1, params2, params3, params4, {'auth': self.auth_token}]:
-            if i is not None:
-                encoded_parameters += urlencode(i) + '&'
-
-        r = dict()
+        params_dict.update({'auth': self.auth_token})
 
         url = self.api_url % (self.domain, self.high_level_domain, method)
-        r = await self._fetch_async_result(client, semaphore, encoded_url=url)
+        r = await self._fetch_async_result(client, semaphore,
+                                           encoded_url=url, params=params,
+                                           )
         result = loads(r)
         return result
 
-    async def _fetch_async_result(self, client: AsyncClient, semaphore: asyncio.Semaphore, encoded_url: str) -> str:
+    async def _fetch_async_result(self, client: AsyncClient,
+                                  semaphore: asyncio.Semaphore,
+                                  encoded_url: str,
+                                  params: dict[str, list[str], dict[str, str | list[str]]],
+                                  ) -> str:
         async with semaphore:
-            result = await client.post(encoded_url, timeout=self.timeout)
+            result = await client.post(encoded_url,
+                                       timeout=self.timeout, json=params,
+                                       )
             result.raise_for_status()
             return result.text
 

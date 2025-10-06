@@ -1,39 +1,39 @@
 class DealField:
 
     @property
-    def ID(self):
+    def ID(self) -> str:
         return 'ID'
 
     @property
-    def TITLE(self):
+    def TITLE(self) -> str:
         return 'TITLE'
 
     @property
-    def TYPE_ID(self):
+    def TYPE_ID(self) -> str:
         return 'TYPE_ID'
 
     @property
-    def CATEGORY_ID(self):
+    def CATEGORY_ID(self) -> str:
         return 'CATEGORY_ID'
 
     @property
-    def STAGE_ID(self):
+    def STAGE_ID(self) -> str:
         return 'STAGE_ID'
 
     @property
-    def OPPORTUNITY(self):
+    def OPPORTUNITY(self) -> str:
         return 'OPPORTUNITY'
 
     @property
-    def IS_MANUAL_OPPORTUNITY(self):
+    def IS_MANUAL_OPPORTUNITY(self) -> str:
         return 'IS_MANUAL_OPPORTUNITY'
 
     @property
-    def ASSIGNED_BY_ID(self):
+    def ASSIGNED_BY_ID(self) -> str:
         return 'ASSIGNED_BY_ID'
 
     @property
-    def DATE_CREATE(self):
+    def DATE_CREATE(self) -> str:
         return 'DATE_CREATE'
 
 
