@@ -1,10 +1,9 @@
 import textwrap
-import json
 import random
 import anyio
 from httpx import AsyncClient, Client
 
-from typing import ClassVar, Any, NoReturn
+from typing import ClassVar, NoReturn
 
 from error import APIConnectionError
 
