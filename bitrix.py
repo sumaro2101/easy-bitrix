@@ -15,7 +15,7 @@ from dto import SelectData
 adapters.DEFAULT_RETRIES = 10
 
 
-class Bitrix24(object):
+class Bitrix24:
     """Class for working with Bitrix24 cloud API"""
     # Cloud Bitrix24 API endpoint
     api_url = 'https://%s.bitrix24.%s/rest/%s.json'
