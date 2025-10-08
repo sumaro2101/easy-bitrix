@@ -38,3 +38,19 @@ class APIConnectionError(APIError):
             code,
         )
         self.should_retry = should_retry
+
+
+class AuthenticationError(APIError):
+    pass
+
+
+class EmptyMethodError(APIError):
+    ...
+
+
+class FilterParameterError(APIError):
+    ...
+
+
+class UnsupportedDomain(APIError):
+    ...

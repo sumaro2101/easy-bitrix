@@ -12,6 +12,11 @@ class NetworkErrors(str, Enum):
     DECODE_ERROR = 'Error on decode api response [{}].'
     MAX_RETRIES_ERROR = 'Max retries exceeded [{}]'
     NOT_FOUND_ERROR = 'Page not found [{}]'
+    AUTHENTICATION_MISS_ERROR = 'There must be at least one authentication method.'
+    OAUTH_TOKEN_AUTHENTICATION_ERROR = 'Miss OAuth token authentication.'
+    OAUTH_CLIEND_ID_AUTHENTICATION_ERROR = 'Miss Client id authentication.'
+    WEBHOOK_USER_ID_AUTHENTICATION_ERROR = 'Miss User id in webhook request process.'
+    WEBHOOK_URL_AUTHENTICATION_ERROR = 'Miss Webhook url in webhook request process.'
 
 
 class BitrixResponseErrors(str, Enum):
