@@ -5,6 +5,7 @@ class LogicErrors(str, Enum):
     METHOD_EMPTY_ERROR = 'Method can`t be empty.'
     UNSUPPERTED_HIGH_LEVEL_DOMAIN = 'Unsupported high level domain.'
     FILTER_PARAMETER_ERROR = 'This parameter has wrong type.'
+    CREATE_DEFAULT_OPTIONS_ERROR = 'Default options can`t be created. You need env {} or not specified refresh token.'
 
 
 class NetworkErrors(str, Enum):

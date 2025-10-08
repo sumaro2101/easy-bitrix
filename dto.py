@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 class SelectData:
     method: str
 
+
 @dataclass
 class SelectListData(SelectData):
     select: list[str] = field(default_factory=['*'])

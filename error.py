@@ -48,6 +48,10 @@ class EmptyMethodError(APIError):
     ...
 
 
+class CreateDefaultOptionsError(APIError):
+    ...
+
+
 class FilterParameterError(APIError):
     ...
 

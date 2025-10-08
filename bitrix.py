@@ -1,158 +1,48 @@
-import asyncio
-from http import HTTPStatus
-from httpx import AsyncClient, HTTPError, ReadTimeout, ConnectError, HTTPStatusError, RequestError
+import os
 from json import loads
 from logging import info
-from time import sleep
-from requests import adapters, post, exceptions
-from multidimensional_urlencode import urlencode
+from requests import post
 
-from exeptions import EmptyMethodError, UnsupportedDomain
-from common import LogicErrors, NetworkErrors, BitrixResponseErrors
-from dto import SelectData
-
-
-adapters.DEFAULT_RETRIES = 10
+from options import RequestOptions
+from error import CreateDefaultOptionsError
+from common import LogicErrors
+from api_requestor import APIRequestor
+from . import STANDART_CLIENT_ID_ENV_NAME
 
 
 class Bitrix24:
     """Class for working with Bitrix24 cloud API"""
-    # Cloud Bitrix24 API endpoint
-    api_url = 'https://%s.bitrix24.%s/rest/%s.json'
-    # Bitrix24 oauth server
-    oauth_url = 'https://oauth.bitrix.info/oauth/token/'
-    # Timeout for API request in seconds
-    timeout = 60
-    limit_requests = 5
 
-    def __init__(self, domain, auth_token, refresh_token='', client_id='', client_secret='', high_level_domain='ru'):
-        """Create Bitrix24 API object
-        :param domain: Cloud Bitrix24 third level domain
-        :param auth_token: Auth token
-        :param refresh_token: Refresh token
-        :param client_id: Client ID for refreshing access tokens
-        :param client_secret: Client secret for refreshing access tokens
-        :param high_level_domain: High level domain of Bitrix24 cloud domain
-        """
-        if high_level_domain not in ('ru', 'com', 'de'):
-            raise UnsupportedDomain(LogicErrors.UNSUPPERTED_HIGH_LEVEL_DOMAIN)
-
-        self.domain = domain
-        self.auth_token = auth_token
+    def __init__(self,
+                 bitrix_address: str,
+                 refresh_token: str | None = None,
+                 ):
+        self.bitrix_address = bitrix_address
         self.refresh_token = refresh_token
-        self.client_id = client_id
-        self.client_secret = client_secret
-        self.high_level_domain = high_level_domain
 
-    async def _async_request(self,
-                             client: AsyncClient,
-                             semaphore: asyncio.Semaphore,
-                             params: SelectData,
-                             auth_token: str | None = None,
-                             ) -> dict:
-        params_dict = params.__dict__
-        method = params_dict.pop('method')
-        if not method:
-            raise EmptyMethodError(LogicErrors.METHOD_EMPTY_ERROR)
-        if auth_token:
-            params_dict.update({'auth': auth_token})
-
-        url = self.api_url % (self.domain, self.high_level_domain, method)
-        r = await self._fetch_async_result(client, semaphore,
-                                           encoded_url=url, params=params,
-                                           )
-        result = loads(r)
-        return result
-
-    async def _fetch_async_result(self, client: AsyncClient,
-                                  semaphore: asyncio.Semaphore,
-                                  encoded_url: str,
-                                  params: dict[str, list[str], dict[str, str | list[str]]],
-                                  ) -> str:
-        async with semaphore:
-            result = await client.post(encoded_url,
-                                       timeout=self.timeout, json=params,
-                                       )
-            result.raise_for_status()
-            return result.text
-
-    async def do_async_requests(self, requests: list[SelectData]) -> list[dict[str, str]]:
-        """
-        """
-        semaphore = asyncio.Semaphore(self.limit_requests)
-        list_of_responses = list()
-
-        with AsyncClient as client:
-            auth_token = self.refresh_tokens()
-            request_coros = [self._async_request(client, semaphore, request, self.auth_token)
-                             for request
-                             in requests]
-            if auth_token:
-                for place, response in enumerate(asyncio.as_completed(request_coros)):
-                    try:
-                        bitrix_response = await response
-                        if 'error' in bitrix_response:
-                            match bitrix_response['error']:
-                                case BitrixResponseErrors.QUERY_LIMIT_EXCEEDED.value:
-                                    await asyncio.sleep(1)
-                                    last_request = requests[place]
-                                    bitrix_response = await self._async_request(
-                                        client,
-                                        semaphore,
-                                        last_request,
-                                        auth_token,
-                                        )
-                        list_of_responses.append(bitrix_response)
-                    except HTTPStatusError as exc:
-                        print(exc.response)
-                    except RequestError as exc:
-                        ...
-        return list_of_responses
-
-    def call(self, method, params1=None, params2=None, params3=None, params4=None):
-        """Call Bitrix24 API method
-        :param method: Method name
-        :param params1: Method parameters 1
-        :param params2: Method parameters 2. Needed for methods with determinate consequence of parameters
-        :param params3: Method parameters 3. Needed for methods with determinate consequence of parameters
-        :param params4: Method parameters 4. Needed for methods with determinate consequence of parameters
-        :return: Call result
-        """
-        if method == '' or not isinstance(method, str):
-            raise Exception('Empty Method')
-
-        encoded_parameters = ''
-
-        for i in [params1, params2, params3, params4, {'auth': self.auth_token}]:
-            if i is not None:
-                encoded_parameters += urlencode(i) + '&'
-
-        r = {}
-
-        try:
-            # request url
-            url = self.api_url % (self.domain, self.high_level_domain, method)
-            # Make API request
-            r = post(url, params=encoded_parameters, timeout=self.timeout)
-            # Decode response
-            result = loads(r.text)
-        except ValueError:
-            result = dict(error='Error on decode api response [' + r.text + ']')
-        except exceptions.ReadTimeout:
-            result = dict(error='Timeout waiting expired [' + str(self.timeout) + ' sec]')
-        except exceptions.ConnectionError:
-            result = dict(error='Max retries exceeded [' + str(adapters.DEFAULT_RETRIES) + ']')
-        if 'error' in result and result['error'] in ('NO_AUTH_FOUND', 'expired_token'):
-            result = self.refresh_tokens()
-            if result is not True:
-                return result
-            # Repeat API request after renew token
-            result = self.call(method, params1, params2, params3, params4)
-        elif 'error' in result and result['error'] in 'QUERY_LIMIT_EXCEEDED':
-            # Suspend call on two second, wait for expired limitation time by Bitrix24 API
-            sleep(2)
-            return self.call(method, params1, params2, params3, params4)
-        return result
+    async def request_async(self, method: str,
+                            param,
+                            options: RequestOptions | None = None,
+                            ):
+        if not options:
+            client_id = os.getenv('BITRIX_CLIENT_ID')
+            if not client_id or not self.refresh_token:
+                raise CreateDefaultOptionsError(
+                    LogicErrors.CREATE_DEFAULT_OPTIONS_ERROR.value.format(STANDART_CLIENT_ID_ENV_NAME),
+                    )
+            # OAuth request with refresh token
+            oauth_token = None
+            options = RequestOptions(
+                oauth_token=oauth_token,
+                client_id=client_id,
+                high_level_domain='ru',
+            )
+        return await APIRequestor._global_instance().request_async(
+            method=method,
+            bitrix_address=self.bitrix_address,
+            params=param,
+            options=options,
+        )
 
     def refresh_tokens(self):
         """Refresh access tokens

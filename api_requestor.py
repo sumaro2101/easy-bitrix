@@ -40,7 +40,13 @@ class APIRequestor:
                             options: RequestOptions | None = None,
                             ):
         requestor = self._replace_options(options)
-        raw_body, raw_code = await requestor
+        raw_body, raw_code = await requestor.request_raw_async(
+            method=method,
+            bitrix_address=bitrix_address,
+            params=params,
+            options=options,
+        )
+        return raw_body, raw_code
 
     async def request_raw_async(self, method: str,
                                 bitrix_address: str, params=None,
@@ -59,7 +65,7 @@ class APIRequestor:
             params=params,
             max_retries=max_network_retries,
         )
-        return raw_content, raw_content
+        return raw_content, raw_code
 
     def _args_for_request(self, method: str,
                           bitrix_address: str, params=None,
