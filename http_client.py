@@ -21,20 +21,21 @@ class HTTPClient:
             self._async_client = AsyncClient(**kwargs)
         self._timeout = timeout
 
-    async def request_async_retries(self, method: str, url: str, params, max_retries: int | None = None):
+    async def request_async_retries(self, method: str, url: str, headers: dict[str, str], params, max_retries: int | None = None):
         return await self._request_async_retries(
             method=method,
             url=url,
+            headers=headers,
             params=params,
             max_retries=max_retries,
         )
 
-    async def _request_async_retries(self, method: str, url: str, params, max_retries: int | None):
+    async def _request_async_retries(self, method: str, url: str, headers: dict[str, str], params, max_retries: int | None):
         num_retries = 0
 
         while True:
             try:
-                response = await self.request_async(method, url, params)
+                response = await self.request_async(method, url, headers, params)
                 connection_error = None
             except APIConnectionError as e:
                 connection_error = e
@@ -75,12 +76,12 @@ class HTTPClient:
             return True
         return False
 
-    def _get_request_args_kwargs(self, method: str, url: str, params):
+    def _get_request_args_kwargs(self, method: str, url: str, headers: dict[str, str], params):
         kwargs = dict()
 
         if self._timeout:
             kwargs['timeout'] = self._timeout
-        return [(method, url), {'json': params or {}, **kwargs}]
+        return [(method, url), {'json': params or {},'headers': headers, **kwargs}]
 
     def _handle_request_error(self, e: Exception) -> NoReturn:
         msg = (
@@ -91,10 +92,11 @@ class HTTPClient:
         msg = textwrap.fill(msg) + f'\n\n(Network error: {err})'
         raise APIConnectionError(msg, should_retry=should_retry) from e
 
-    async def request_async(self, method: str, url: str, params) -> tuple[bytes, int]:
+    async def request_async(self, method: str, url: str, headers: dict[str, str], params) -> tuple[bytes, int]:
         args, kwargs = self._get_request_args_kwargs(
             method=method,
             url=url,
+            headers=headers,
             params=params,
         )
         try:

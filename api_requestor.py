@@ -4,6 +4,7 @@ from .http_client import HTTPClient
 from .options import RequestorOptions, GlobalRequestorOptions, RequestOptions, merge_options
 from .error import AuthenticationError, UnsupportedDomain, EmptyMethodError
 from .common import NetworkErrors, LogicErrors
+from .logger import log_debug, log_info
 
 
 class APIRequestor:
@@ -26,6 +27,7 @@ class APIRequestor:
     def _replace_options(self, options: RequestOptions | None) -> 'APIRequestor':
         options = options or {}
         new_options = self._options.to_dict()
+        log_debug('New Options', Options=new_options)
         return APIRequestor(
             options=RequestorOptions(**new_options),
             client=self._client,
@@ -56,6 +58,8 @@ class APIRequestor:
             params=params,
             options=options,
         )
+        log_info('Request to bitrix', url=abs_url)
+        log_debug('Request details', params=params)
         raw_content, raw_code = await HTTPClient().request_async_retries(
             method='post',
             url=abs_url,
@@ -74,6 +78,7 @@ class APIRequestor:
         oauth_token = request_options.get('oauth_token')
         webhook = request_options.get('webhook_url')
         user_id = request_options.get('user_id')
+        params = params.__dict__
         method = params.pop('method')
         match (bool(client_id), bool(oauth_token), bool(webhook), bool(user_id)):
             case True, False, _, _:

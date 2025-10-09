@@ -74,6 +74,26 @@ class GlobalRequestorOptions(RequestorOptions):
     def max_network_retries(self):
         return max_network_retries
 
+    @property
+    def oauth_token(self):
+        return None
+
+    @property
+    def client_id(self):
+        return None
+
+    @property
+    def user_id(self):
+        return None
+
+    @property
+    def webhook_url(self):
+        return None
+
+    @property
+    def high_level_domain(self):
+        return None
+
 
 def merge_options(
     requestor: RequestorOptions,

@@ -7,7 +7,7 @@ from .options import RequestOptions
 from .error import CreateDefaultOptionsError
 from .common import LogicErrors
 from .api_requestor import APIRequestor
-from . import STANDART_CLIENT_ID_ENV_NAME
+from . import CLIENT_ID
 
 
 class Bitrix24:
@@ -25,7 +25,7 @@ class Bitrix24:
                             options: RequestOptions | None = None,
                             ):
         if not options:
-            client_id = os.getenv('BITRIX_CLIENT_ID')
+            client_id = CLIENT_ID
             if not client_id or not self.refresh_token:
                 raise CreateDefaultOptionsError(
                     LogicErrors.CREATE_DEFAULT_OPTIONS_ERROR.value.format(STANDART_CLIENT_ID_ENV_NAME),

@@ -1,11 +1,16 @@
 import re
 import sys
 import logging
+import os
+
+import easy_bitrix
+
 from typing import NoReturn
 
 
 LOG_FORMAT = '%(asctime)s [%(levelname)s] %(name)s: %(messagee)s'
 NAME_LOGGER = 'easy-bitrix'
+BITRIX_LOG = os.getenv('BITRIX_LOG')
 
 
 def setup_logger() -> logging.Logger:
@@ -36,11 +41,24 @@ def make_log_sctucture(props: dict):
     return ' '.join([sctucture(key, value) for key, value in sorted(props.items())])
 
 
+def _check_log_level():
+    if easy_bitrix.log in ['debug', 'info']:
+        return easy_bitrix.log
+    elif BITRIX_LOG in ['debug', 'info']:
+        return BITRIX_LOG
+    else:
+        return None
+
+
 def log_info(message: str, **params) -> NoReturn:
     msg = make_log_sctucture(dict(message=message, **params))
+    if _check_log_level() == 'debug':
+        print(msg, file=sys.stderr)
     logger.info(msg)
 
 
 def log_debug(message: str, **params) -> NoReturn:
     msg = make_log_sctucture(dict(message=message, **params))
+    if _check_log_level() == 'debug':
+        print(msg, file=sys.stderr)
     logger.debug(msg)
