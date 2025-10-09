@@ -1,5 +1,5 @@
 from typing import Generic, TypeVar
-from fields import DEAL_FIELD, LEAD_FIELD
+from .fields import DEAL_FIELD, LEAD_FIELD
 
 
 T = TypeVar('T')

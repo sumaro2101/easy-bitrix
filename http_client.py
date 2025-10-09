@@ -5,7 +5,7 @@ from httpx import AsyncClient, Client
 
 from typing import ClassVar, NoReturn
 
-from error import APIConnectionError
+from .error import APIConnectionError
 
 
 class HTTPClient:

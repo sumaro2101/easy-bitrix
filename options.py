@@ -1,4 +1,4 @@
-from . import DEFAULT_API_URL, DEFAULT_OAUTH_URL, max_network_retries
+from easy_bitrix import DEFAULT_API_URL, DEFAULT_OAUTH_URL, max_network_retries
 from typing import ClassVar, TypedDict, Literal
 
 

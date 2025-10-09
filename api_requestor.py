@@ -1,13 +1,13 @@
 from typing import ClassVar
 
-from http_client import HTTPClient
-from options import RequestorOptions, GlobalRequestorOptions, RequestOptions, merge_options
-from error import AuthenticationError, UnsupportedDomain, EmptyMethodError
-from common import NetworkErrors, LogicErrors
+from .http_client import HTTPClient
+from .options import RequestorOptions, GlobalRequestorOptions, RequestOptions, merge_options
+from .error import AuthenticationError, UnsupportedDomain, EmptyMethodError
+from .common import NetworkErrors, LogicErrors
 
 
 class APIRequestor:
-    _instance: ClassVar['APIRequestor' | None] = None
+    _instance: ClassVar['APIRequestor|None'] = None
 
     def __init__(self, options: RequestorOptions | None = None,
                  client: HTTPClient | None = None,
@@ -35,25 +35,23 @@ class APIRequestor:
     def _global_with_options(**param) -> 'APIRequestor':
         return APIRequestor._global_instance()._replace_options(param)
 
-    async def request_async(self, method: str,
+    async def request_async(self,
                             bitrix_address: str, params=None,
                             options: RequestOptions | None = None,
                             ):
         requestor = self._replace_options(options)
         raw_body, raw_code = await requestor.request_raw_async(
-            method=method,
             bitrix_address=bitrix_address,
             params=params,
             options=options,
         )
         return raw_body, raw_code
 
-    async def request_raw_async(self, method: str,
+    async def request_raw_async(self,
                                 bitrix_address: str, params=None,
                                 options: RequestOptions | None = None,
                                 ) -> tuple[bytes, input]:
         abs_url, headers, params, max_network_retries = self._args_for_request(
-            method=method,
             bitrix_address=bitrix_address,
             params=params,
             options=options,
@@ -67,7 +65,7 @@ class APIRequestor:
         )
         return raw_content, raw_code
 
-    def _args_for_request(self, method: str,
+    def _args_for_request(self,
                           bitrix_address: str, params=None,
                           options: RequestOptions | None = None,
                           ):
@@ -76,6 +74,7 @@ class APIRequestor:
         oauth_token = request_options.get('oauth_token')
         webhook = request_options.get('webhook_url')
         user_id = request_options.get('user_id')
+        method = params.pop('method')
         match (bool(client_id), bool(oauth_token), bool(webhook), bool(user_id)):
             case True, False, _, _:
                 raise AuthenticationError(NetworkErrors.OAUTH_TOKEN_AUTHENTICATION_ERROR.value)

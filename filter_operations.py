@@ -1,6 +1,5 @@
-from common import FilterOperations, LogicErrors
-
-from error import FilterParameterError
+from .common import FilterOperations, LogicErrors
+from .error import FilterParameterError
 
 
 class Operation[T: dict[str, str]]:

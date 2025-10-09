@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import ClassVar
 
-from parameters import Deal, Select, Filter
-from dto import SelectGetData, SelectListData, SelectData
+from .parameters import Deal, Select, Filter
+from .dto import SelectGetData, SelectListData, SelectData
 
 
 class DataExecutor(ABC):

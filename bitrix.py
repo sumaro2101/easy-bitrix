@@ -3,10 +3,10 @@ from json import loads
 from logging import info
 from requests import post
 
-from options import RequestOptions
-from error import CreateDefaultOptionsError
-from common import LogicErrors
-from api_requestor import APIRequestor
+from .options import RequestOptions
+from .error import CreateDefaultOptionsError
+from .common import LogicErrors
+from .api_requestor import APIRequestor
 from . import STANDART_CLIENT_ID_ENV_NAME
 
 
@@ -20,7 +20,7 @@ class Bitrix24:
         self.bitrix_address = bitrix_address
         self.refresh_token = refresh_token
 
-    async def request_async(self, method: str,
+    async def request_async(self,
                             param,
                             options: RequestOptions | None = None,
                             ):
@@ -38,7 +38,6 @@ class Bitrix24:
                 high_level_domain='ru',
             )
         return await APIRequestor._global_instance().request_async(
-            method=method,
             bitrix_address=self.bitrix_address,
             params=param,
             options=options,
