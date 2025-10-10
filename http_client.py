@@ -1,3 +1,4 @@
+import time
 import textwrap
 import random
 import anyio
@@ -7,6 +8,7 @@ from typing import ClassVar, NoReturn
 
 from .error import APIConnectionError
 from .logger import log_info
+from .common import LogicErrors
 
 
 class HTTPClient:
@@ -18,11 +20,28 @@ class HTTPClient:
                  async_requests: bool = True, **kwargs,
                  ):
         self._httpx = None
+        self._client = None
+        self._async_client = None
         if not async_requests:
             self._client = Client(**kwargs)
         else:
             self._async_client = AsyncClient(**kwargs)
         self._timeout = timeout
+
+    def request_retries(self,
+                        method: str,
+                        url: str,
+                        headers: dict[str, str],
+                        params,
+                        max_retries: int | None = None,
+                        ):
+        return self._request_retries(
+            method=method,
+            url=url,
+            headers=headers,
+            params=params,
+            max_retries=max_retries,
+        )
 
     async def request_async_retries(self, method: str,
                                     url: str, headers: dict[str, str],
@@ -36,7 +55,41 @@ class HTTPClient:
             max_retries=max_retries,
         )
 
-    async def _request_async_retries(self, method: str, url: str, headers: dict[str, str], params, max_retries: int | None):
+    def _request_retries(self,
+                         method: str,
+                         url: str,
+                         headers: dict[str, str],
+                         params,
+                         max_retries: int | None,
+                         ):
+        num_retries = 0
+
+        while True:
+            try:
+                response = self.request(method, url, headers, params)
+                connection_error = None
+                log_info('Request is sussess', code=response[-1])
+            except APIConnectionError as e:
+                connection_error = e
+                log_info('Requests has exception', except_=e.message)
+                response = None
+            if self._should_retry(response, connection_error, num_retries, max_retries):
+                num_retries += 1
+                sleep_time = self._sleep_time_seconds(num_retries)
+                log_info('Retrie request after seconds', seconds=sleep_time)
+                time.sleep(sleep_time)
+            else:
+                if response is not None:
+                    return response
+                raise connection_error
+
+    async def _request_async_retries(self,
+                                     method: str,
+                                     url: str,
+                                     headers: dict[str, str],
+                                     params,
+                                     max_retries: int | None,
+                                     ):
         num_retries = 0
 
         while True:
@@ -101,7 +154,36 @@ class HTTPClient:
         msg = textwrap.fill(msg) + f'\n\n(Network error: {err})'
         raise APIConnectionError(msg, should_retry=should_retry) from e
 
-    async def request_async(self, method: str, url: str, headers: dict[str, str], params) -> tuple[bytes, int]:
+    def request(self,
+                method: str,
+                url: str,
+                headers: dict[str, str],
+                params,
+                ) -> tuple[bytes, int]:
+        if not self._client:
+            raise RuntimeError(
+                LogicErrors.ASYNC_IS_FLAG_TRUE.value,
+            )
+        args, kwargs = self._get_request_args_kwargs(
+            method=method,
+            url=url,
+            headers=headers,
+            params=params,
+        )
+        try:
+            response = self._client.request(*args, **kwargs)
+            result = response.content
+            status_code = response.status_code
+        except Exception as e:
+            self._handle_request_error(e)
+        return result, status_code
+
+    async def request_async(self,
+                            method: str,
+                            url: str,
+                            headers: dict[str, str],
+                            params,
+                            ) -> tuple[bytes, int]:
         args, kwargs = self._get_request_args_kwargs(
             method=method,
             url=url,
