@@ -138,7 +138,12 @@ class HTTPClient:
             return True
         return False
 
-    def _get_request_args_kwargs(self, method: str, url: str, headers: dict[str, str], params):
+    def _get_request_args_kwargs(self,
+                                 method: str,
+                                 url: str,
+                                 headers: dict[str, str],
+                                 params,
+                                 ):
         kwargs = dict()
 
         if self._timeout:
@@ -150,7 +155,12 @@ class HTTPClient:
             'Unexpected error communication with Bitrix24.'
         )
         err = f'A {type(e).__name__} was raised'
-        should_retry = type(e) not in [AttributeError, TypeError, ValueError, LookupError, OSError, SyntaxError]
+        should_retry = type(e) not in [AttributeError,
+                                       TypeError,
+                                       ValueError,
+                                       LookupError,
+                                       OSError,
+                                       SyntaxError]
         msg = textwrap.fill(msg) + f'\n\n(Network error: {err})'
         raise APIConnectionError(msg, should_retry=should_retry) from e
 

@@ -8,6 +8,7 @@ class APIAddresses(TypedDict):
 
 
 class RequestOptions(TypedDict):
+    oauth_authorization: bool
     max_network_retries: int | None
     oauth_token: str | None
     client_id: str | None
@@ -17,6 +18,7 @@ class RequestOptions(TypedDict):
 
 
 class RequestorOptions:
+    oauth_authorization: ClassVar[bool]
     max_network_retries: ClassVar[int | None]
     api_addresses: ClassVar[APIAddresses]
     oauth_token: ClassVar[str | None]
@@ -26,6 +28,7 @@ class RequestorOptions:
     high_level_domain: ClassVar[Literal['ru', 'com', 'de'] | None]
 
     def __init__(self,
+                 oauth_authorization: bool = False,
                  api_addresses: APIAddresses | None = None,
                  max_network_retries: int | None = None,
                  oauth_token: str | None = None,
@@ -34,6 +37,7 @@ class RequestorOptions:
                  webhook_url: str | None = None,
                  high_level_domain: Literal['ru', 'com', 'de'] | None = None,
                  ):
+        self.oauth_authorization = oauth_authorization
         self.api_addresses = dict()
         self.max_network_retries = max_network_retries
         if api_addresses:
@@ -49,6 +53,7 @@ class RequestorOptions:
 
     def to_dict(self):
         return {
+            'oauth_authorization': self.oauth_authorization,
             'api_addresses': self.api_addresses,
             'max_network_retries': self.max_network_retries,
             'oauth_token': self.oauth_token,
@@ -62,6 +67,10 @@ class RequestorOptions:
 class GlobalRequestorOptions(RequestorOptions):
     def __init__(self):
         pass
+
+    @property
+    def oauth_authorization(self):
+        return False
 
     @property
     def api_addresses(self):
@@ -101,6 +110,7 @@ def merge_options(
 ) -> RequestOptions:
     if request is None:
         return {
+            'oauth_authorization': False,
             'max_network_retries': requestor.max_network_retries,
             'api_addresses': requestor.api_addresses,
             'oauth_token': None,
@@ -111,6 +121,7 @@ def merge_options(
         }
 
     return {
+        'oauth_authorization': request.get('oauth_authorization'),
         'max_network_retries': request.get('max_network_retries')
         if request.get('max_network_retries') is not None
         else requestor.max_network_retries,

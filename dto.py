@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import Literal
 
 
 @dataclass
@@ -40,3 +41,20 @@ class UpdateData(SelectData):
 @dataclass
 class DeleteData(SelectData):
     id: dict[str, int]
+
+
+@dataclass
+class OAuthData:
+    grant_type: Literal['authorization_code', 'refresh_token']
+    client_id: str
+    client_secret: str
+
+
+@dataclass
+class RequestOAuthAssessToken(OAuthData):
+    code: str
+
+
+@dataclass
+class RequestOAuthRefreshToken(OAuthData):
+    refresh_token: str
