@@ -3,7 +3,7 @@ from unittest import TestCase
 from .parameters import Fields, Filter, Select
 from .bitrix_objects import Deal
 from .fields import DEAL_FIELD
-from .filter_operations import Operation
+from .operations import Operation
 from .error import FilterParameterError
 from .data_builder import CRMDataExecutor
 from .common import BitrixCRMTypes

@@ -11,6 +11,7 @@ class SelectListData(SelectData):
     select: list[str] = field(default_factory=['*'])
     filter: dict[str, str | int | float | list[str | int | float]] = field(default_factory=dict())
     order: dict[str, str | int | float] = field(default_factory=dict())
+    start: int = field(default=0)
 
 
 @dataclass

@@ -1,51 +1,92 @@
+from typing import ClassVar
+
 from datetime import datetime
 
 from .fields import DEAL_FIELD
 from .common import LogicErrors
+from .dto import SelectGetData, SelectListData
+from .parameters import Select, Filter, Order
 
 
-class Deal[T]:
+class BaseBitrixObject:
+    """
+    """
+    root: ClassVar[str]
+
+    @classmethod
+    def get(cls, id: int) -> SelectGetData:
+        method = cls.root.format('get')
+        _id = {'ID': id}
+        return SelectGetData(method=method, id=_id)
+
+    @classmethod
+    def list(cls, select: Select[str] | None = None,
+             filter: Filter[dict[str, str | list[str, int, float]]] | None = None,
+             order: Order | None = None,
+             start: int = 0,
+             ) -> SelectListData:
+        method = cls.root.format('list')
+        return SelectListData(
+            method=method,
+            select=select.compare if select else ['*'],
+            filter=filter.compare if filter else dict(),
+            order=order.compare if order else dict(),
+            start=start,
+        )
+
+
+class Deal[T](BaseBitrixObject):
     """
     The Deal class provides static methods for formatting Bitrix24 product field parameters.
     Each method corresponds to a field in the PRODUCT_FIELD class and returns a string representation
     suitable for use in Bitrix24 API requests. This class helps to build query parameters in a consistent
     and type-safe way, reducing errors and improving code readability.
     """
+    root = 'crm.deal.{}'
+    ID = DEAL_FIELD.ID
+    TITLE = DEAL_FIELD.TITLE
+    TYPE_ID = DEAL_FIELD.TYPE_ID
+    CATEGORY_ID = DEAL_FIELD.CATEGORY_ID
+    STAGE_ID = DEAL_FIELD.STAGE_ID
+    OPPORTUNITY = DEAL_FIELD.OPPORTUNITY
+    IS_MANUAL_OPPORTUNITY = DEAL_FIELD.IS_MANUAL_OPPORTUNITY
+    ASSIGNED_BY_ID = DEAL_FIELD.ASSIGNED_BY_ID
+    DATE_CREATE = DEAL_FIELD.DATE_CREATE
 
     @staticmethod
-    def ID(value: T) -> dict[str, T]:
+    def SET_ID(value: T) -> dict[str, T]:
         return {DEAL_FIELD.ID: value}
 
     @staticmethod
-    def TITLE(value: T) -> dict[str, T]:
+    def SET_TITLE(value: T) -> dict[str, T]:
         return {DEAL_FIELD.TITLE: value}
 
     @staticmethod
-    def TYPE_ID(value: T | list[T]) -> dict[str, T | list[T]]:
+    def SET_TYPE_ID(value: T | list[T]) -> dict[str, T | list[T]]:
         return {DEAL_FIELD.TYPE_ID: value}
 
     @staticmethod
-    def CATEGORY_ID(value: T | list[T]) -> dict[str, T | list[T]]:
+    def SET_CATEGORY_ID(value: T | list[T]) -> dict[str, T | list[T]]:
         return {DEAL_FIELD.CATEGORY_ID: value}
 
     @staticmethod
-    def STAGE_ID(value: T) -> dict[str, T]:
+    def SET_STAGE_ID(value: T) -> dict[str, T]:
         return {DEAL_FIELD.STAGE_ID: value}
 
     @staticmethod
-    def OPPORTUNITY(value: T) -> dict[str, T]:
+    def SET_OPPORTUNITY(value: T) -> dict[str, T]:
         return {DEAL_FIELD.OPPORTUNITY: value}
 
     @staticmethod
-    def IS_MANUAL_OPPORTUNITY(value: bool) -> dict[str, str]:
+    def SET_IS_MANUAL_OPPORTUNITY(value: bool) -> dict[str, str]:
         return {DEAL_FIELD.IS_MANUAL_OPPORTUNITY: 'Y' if value else 'N'}
 
     @staticmethod
-    def ASSIGNED_BY_ID(value: T | list[T]) -> dict[str, T, list[T]]:
+    def SET_ASSIGNED_BY_ID(value: T | list[T]) -> dict[str, T, list[T]]:
         return {DEAL_FIELD.ASSIGNED_BY_ID: value}
 
     @staticmethod
-    def DATE_CREATE(value: datetime | str) -> dict[str, str]:
+    def SET_DATE_CREATE(value: datetime | str) -> dict[str, str]:
         try:
             if not isinstance(value, (datetime, str)):
                 raise ValueError(LogicErrors.WRONG_TYPE_PARAMETER.format(value.__class__.__name__))

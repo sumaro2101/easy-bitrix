@@ -1,4 +1,3 @@
-import os
 from json import loads
 from logging import info
 from requests import post
