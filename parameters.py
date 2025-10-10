@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Generic, TypeVar
 from .fields import DEAL_FIELD, LEAD_FIELD
 
@@ -12,6 +13,7 @@ class Deal:
     suitable for use in Bitrix24 API requests. This class helps to build query parameters in a consistent
     and type-safe way, reducing errors and improving code readability.
     """
+
     @staticmethod
     def ID(value: T) -> dict[str, T]:
         return {DEAL_FIELD.ID: value}
@@ -45,8 +47,8 @@ class Deal:
         return {DEAL_FIELD.ASSIGNED_BY_ID: value}
 
     @staticmethod
-    def DATE_CREATE(value: T) -> dict[str, T]:
-        return {DEAL_FIELD.DATE_CREATE: value}
+    def DATE_CREATE(value: datetime) -> dict[str, str]:
+        return {DEAL_FIELD.DATE_CREATE: value.isoformat()}
 
 
 class Select(Generic[T]):
