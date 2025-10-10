@@ -55,3 +55,17 @@ class BitrixCRMTypes(str, Enum):
     ADDRESS = 'address'
     STATUS = 'status'
     CURRENCY = 'currency'
+
+
+class BitrixParams(str, Enum):
+    REGISTER_SONET_EVENT = 'REGISTER_SONET_EVENT'
+    IMPORT = 'IMPORT'
+
+
+class BitrixMethods(str, Enum):
+    GET = 'get'
+    LIST = 'list'
+    FIELDS = 'fields'
+    ADD = 'add'
+    UPDATE = 'update'
+    DELETE = 'delete'
