@@ -1,8 +1,8 @@
-from .common import FilterOperations, LogicErrors
+from .common import FilterTo, LogicErrors, OrderTo
 from .error import FilterParameterError
 
 
-class Operation[T: dict[str, str]]:
+class FilterOperation[T: dict[str, str]]:
     """
     The Operation class provides convenient static methods for setting up
     filters for any parameter in Bitrix24.
@@ -16,52 +16,64 @@ class Operation[T: dict[str, str]]:
     """
     @staticmethod
     def LTE(param: T) -> T:
-        return _base_operation(param, FilterOperations.LTE)
+        return _base_operation(param, FilterTo.LTE)
 
     @staticmethod
     def EQ(param: T) -> T:
-        return _base_operation(param, FilterOperations.EQ)
+        return _base_operation(param, FilterTo.EQ)
 
     @staticmethod
     def NEQ(param: T) -> T:
-        return _base_operation(param, FilterOperations.NEQ)
+        return _base_operation(param, FilterTo.NEQ)
 
     @staticmethod
     def GT(param: T) -> T:
-        return _base_operation(param, FilterOperations.GT)
+        return _base_operation(param, FilterTo.GT)
 
     @staticmethod
     def GTE(param: T) -> T:
-        return _base_operation(param, FilterOperations.GTE)
+        return _base_operation(param, FilterTo.GTE)
 
     @staticmethod
     def LT(param: T) -> T:
-        return _base_operation(param, FilterOperations.LT)
+        return _base_operation(param, FilterTo.LT)
 
     @staticmethod
     def IN(param: T) -> T:
-        return _contains_operation(param, FilterOperations.IN)
+        return _contains_operation(param, FilterTo.IN)
 
     @staticmethod
     def NOT_IN(param: T) -> T:
-        return _contains_operation(param, FilterOperations.NOT_IN)
+        return _contains_operation(param, FilterTo.NOT_IN)
 
     @staticmethod
     def LIKE(param: T) -> T:
-        return _like_operation(param, FilterOperations.LIKE)
+        return _like_operation(param, FilterTo.LIKE)
 
     @staticmethod
     def START_LIKE(param: T) -> T:
-        return _like_operation(param, FilterOperations.START_LIKE)
+        return _like_operation(param, FilterTo.START_LIKE)
 
     @staticmethod
     def END_LIKE(param: T) -> T:
-        return _like_operation(param, FilterOperations.END_LIKE)
+        return _like_operation(param, FilterTo.END_LIKE)
+
+
+class OrderOperations:
+    """
+    """
+    @staticmethod
+    def ASCENDING_ORDER(key: str) -> dict[str, str]:
+        return {key: OrderTo.ASCENDING_ORDER.value}
+
+    @staticmethod
+    def DESCENDING_ORDER(key: str) -> dict[str, str]:
+        return {key: OrderTo.DESCENDING_ORDER.value}
 
 
 def _like_operation[T: dict[str, str]](param: T,
                                        opetator: str,
-                                       like_op: str = FilterOperations.LIKE_OP,
+                                       like_op: str = FilterTo.LIKE_OP,
                                        ) -> T:
     key, value = next(iter(param.items()))
     new_key = like_op.format(key)

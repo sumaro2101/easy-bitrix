@@ -6,6 +6,7 @@ class LogicErrors(str, Enum):
     UNSUPPERTED_HIGH_LEVEL_DOMAIN = 'Unsupported high level domain.'
     FILTER_PARAMETER_ERROR = 'This parameter has wrong type.'
     CREATE_DEFAULT_OPTIONS_ERROR = 'Default options can`t be created. You need env {} or not specified refresh token.'
+    WRONG_TYPE_PARAMETER = 'Type of {} is wrong for this parameter.'
 
 
 class NetworkErrors(str, Enum):
@@ -25,7 +26,7 @@ class BitrixResponseErrors(str, Enum):
     QUERY_LIMIT_EXCEEDED = 'QUERY_LIMIT_EXCEEDED'
 
 
-class FilterOperations(str, Enum):
+class FilterTo(str, Enum):
     EQ = '={}'
     NEQ = '!={}'
     GT = '>{}'
@@ -40,6 +41,11 @@ class FilterOperations(str, Enum):
     LIKE_OP = '%={}'
 
 
+class OrderTo(str, Enum):
+    ASCENDING_ORDER = 'ASC'
+    DESCENDING_ORDER = 'DESC'
+
+
 class BitrixCRMTypes(str, Enum):
     LEAD = 'lead'
     DEAL = 'deal'
@@ -49,3 +55,17 @@ class BitrixCRMTypes(str, Enum):
     ADDRESS = 'address'
     STATUS = 'status'
     CURRENCY = 'currency'
+
+
+class BitrixParams(str, Enum):
+    REGISTER_SONET_EVENT = 'REGISTER_SONET_EVENT'
+    IMPORT = 'IMPORT'
+
+
+class BitrixMethods(str, Enum):
+    GET = 'get'
+    LIST = 'list'
+    FIELDS = 'fields'
+    ADD = 'add'
+    UPDATE = 'update'
+    DELETE = 'delete'
