@@ -20,17 +20,20 @@ class BaseBitrixObject:
         return SelectGetData(method=method, id=_id)
 
     @classmethod
-    def list(cls, select: Select[str] | None = None,
-             filter: Filter[dict[str, str | list[str, int, float]]] | None = None,
-             order: Order | None = None,
+    def list(cls, select: list[str] | None = None,
+             filter: list[dict[str, str | list[str, int, float]]] | None = None,
+             order: list[dict[str, str]] | None = None,
              start: int = 0,
              ) -> SelectListData:
         method = cls.root.format('list')
+        select = Select(*list(select)).compare if select else ['*']
+        filter_ = Filter(*list(filter)).compare if filter else dict()
+        order = Order(*list(order)).compare if order else dict()
         return SelectListData(
             method=method,
-            select=select.compare if select else ['*'],
-            filter=filter.compare if filter else dict(),
-            order=order.compare if order else dict(),
+            select=select,
+            filter=filter_,
+            order=order,
             start=start,
         )
 

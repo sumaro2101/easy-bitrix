@@ -1,4 +1,5 @@
-from typing import ClassVar
+from typing import Any, ClassVar
+import json
 
 from .http_client import HTTPClient
 from .options import RequestorOptions, GlobalRequestorOptions, RequestOptions, merge_options
@@ -51,7 +52,7 @@ class APIRequestor:
     async def request_raw_async(self,
                                 bitrix_address: str, params=None,
                                 options: RequestOptions | None = None,
-                                ) -> tuple[bytes, input]:
+                                ) -> tuple[dict[str, Any], input]:
         abs_url, headers, params, max_network_retries = self._args_for_request(
             bitrix_address=bitrix_address,
             params=params,
@@ -66,7 +67,7 @@ class APIRequestor:
             params=params,
             max_retries=max_network_retries,
         )
-        return raw_content, raw_code
+        return json.loads(raw_content), raw_code
 
     def _args_for_request(self,
                           bitrix_address: str, params=None,
