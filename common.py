@@ -7,6 +7,7 @@ class LogicErrors(str, Enum):
     FILTER_PARAMETER_ERROR = 'This parameter has wrong type.'
     CREATE_DEFAULT_OPTIONS_ERROR = 'Default options can`t be created. You need env {} or not specified refresh token.'
     WRONG_TYPE_PARAMETER = 'Type of {} is wrong for this parameter.'
+    ASYNC_IS_FLAG_TRUE = 'Used Sync client with flag "async_requests", switch to "False" before use.'
 
 
 class NetworkErrors(str, Enum):

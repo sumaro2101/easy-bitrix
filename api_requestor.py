@@ -37,22 +37,54 @@ class APIRequestor:
     def _global_with_options(**param) -> 'APIRequestor':
         return APIRequestor._global_instance()._replace_options(param)
 
+    def request(self,
+                bitrix_address: str, params=None,
+                options: RequestOptions | None = None,
+                ) -> tuple[dict[str, Any], int]:
+        requestor = self._replace_options(options)
+        raw_body, raw_code = requestor.request_raw(
+            bitrix_address=bitrix_address,
+            params=params,
+            options=options,
+        )
+        return json.loads(raw_body), raw_code
+
     async def request_async(self,
                             bitrix_address: str, params=None,
                             options: RequestOptions | None = None,
-                            ):
+                            ) -> tuple[dict[str, Any], int]:
         requestor = self._replace_options(options)
         raw_body, raw_code = await requestor.request_raw_async(
             bitrix_address=bitrix_address,
             params=params,
             options=options,
         )
-        return raw_body, raw_code
+        return json.loads(raw_body), raw_code
+
+    def request_raw(self,
+                    bitrix_address: str, params=None,
+                    options: RequestOptions | None = None,
+                    ) -> tuple[bytes, int]:
+        abs_url, headers, params, max_network_retries = self._args_for_request(
+            bitrix_address=bitrix_address,
+            params=params,
+            options=options,
+        )
+        log_info('Request to bitrix', url=abs_url)
+        log_debug('Request details', params=params)
+        raw_content, raw_code = HTTPClient(async_requests=False).request_retries(
+            method='post',
+            url=abs_url,
+            headers=headers,
+            params=params,
+            max_retries=max_network_retries,
+        )
+        return raw_content, raw_code
 
     async def request_raw_async(self,
                                 bitrix_address: str, params=None,
                                 options: RequestOptions | None = None,
-                                ) -> tuple[dict[str, Any], input]:
+                                ) -> tuple[bytes, int]:
         abs_url, headers, params, max_network_retries = self._args_for_request(
             bitrix_address=bitrix_address,
             params=params,
@@ -67,12 +99,12 @@ class APIRequestor:
             params=params,
             max_retries=max_network_retries,
         )
-        return json.loads(raw_content), raw_code
+        return raw_content, raw_code
 
     def _args_for_request(self,
                           bitrix_address: str, params=None,
                           options: RequestOptions | None = None,
-                          ):
+                          ) -> tuple[str, dict[str, str], dict[str, Any], int]:
         request_options = merge_options(self._options, options)
         log_debug('New_options', options=request_options)
         client_id = request_options.get('client_id')
