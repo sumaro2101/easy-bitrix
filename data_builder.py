@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import ClassVar
 
-from .parameters import Deal, Select, Filter
+from .parameters import Select, Filter, Order
 from .dto import SelectGetData, SelectListData, SelectData
 
 
@@ -26,16 +26,16 @@ class CRMDataExecutor(DataExecutor):
 
     def get(self, id: int) -> SelectGetData:
         method = self.root.format(self._crm_type, 'get')
-        _id = Deal.ID(id)
+        _id = {'ID': id}
         return SelectGetData(method=method, id=_id)
 
     def list(self, select: Select[str] | None = None,
              filter: Filter[dict[str, str | list[str, int, float]]] | None = None,
-             order: dict[str, str] | None = None) -> SelectListData:
+             order: Order | None = None) -> SelectListData:
         method = self.root.format(self._crm_type, 'list')
         return SelectListData(
             method=method,
             select=select.compare if select else ['*'],
             filter=filter.compare if filter else dict(),
-            order=order if order else dict(),
+            order=order.compare if order else dict(),
         )

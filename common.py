@@ -26,7 +26,7 @@ class BitrixResponseErrors(str, Enum):
     QUERY_LIMIT_EXCEEDED = 'QUERY_LIMIT_EXCEEDED'
 
 
-class FilterOperations(str, Enum):
+class FilterTo(str, Enum):
     EQ = '={}'
     NEQ = '!={}'
     GT = '>{}'
@@ -41,7 +41,7 @@ class FilterOperations(str, Enum):
     LIKE_OP = '%={}'
 
 
-class OrderOperations(str, Enum):
+class OrderTo(str, Enum):
     ASCENDING_ORDER = 'ASC'
     DESCENDING_ORDER = 'DESC'
 
