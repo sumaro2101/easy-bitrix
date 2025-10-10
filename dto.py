@@ -39,4 +39,4 @@ class UpdateData(SelectData):
 
 @dataclass
 class DeleteData(SelectData):
-    ...
+    id: dict[str, int]

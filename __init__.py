@@ -10,5 +10,5 @@ from easy_bitrix import error
 from easy_bitrix import parameters
 from easy_bitrix import operations
 from easy_bitrix.options import RequestOptions
-from easy_bitrix.bitrix_objects import Deal
+from easy_bitrix.bitrix_objects import Deal, Contact
 from easy_bitrix.bitrix import Bitrix24
