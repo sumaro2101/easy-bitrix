@@ -41,6 +41,11 @@ class FilterOperations(str, Enum):
     LIKE_OP = '%={}'
 
 
+class OrderOperations(str, Enum):
+    ASCENDING_ORDER = 'ASC'
+    DESCENDING_ORDER = 'DESC'
+
+
 class BitrixCRMTypes(str, Enum):
     LEAD = 'lead'
     DEAL = 'deal'
