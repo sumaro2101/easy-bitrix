@@ -6,6 +6,7 @@ from httpx import AsyncClient, Client
 from typing import ClassVar, NoReturn
 
 from .error import APIConnectionError
+from .logger import log_info
 
 
 class HTTPClient:
@@ -13,15 +14,20 @@ class HTTPClient:
     INITIAL_DELAY: ClassVar[float] = 0.5
     MAX_RETRY_AFTER: ClassVar[int] = 60
 
-    def __init__(self, timeout: int | None = 60, async_requests: bool = True, **kwargs):
+    def __init__(self, timeout: int | None = 60,
+                 async_requests: bool = True, **kwargs,
+                 ):
         self._httpx = None
-        if async_requests:
+        if not async_requests:
             self._client = Client(**kwargs)
         else:
             self._async_client = AsyncClient(**kwargs)
         self._timeout = timeout
 
-    async def request_async_retries(self, method: str, url: str, headers: dict[str, str], params, max_retries: int | None = None):
+    async def request_async_retries(self, method: str,
+                                    url: str, headers: dict[str, str],
+                                    params, max_retries: int | None = None,
+                                    ):
         return await self._request_async_retries(
             method=method,
             url=url,
@@ -37,12 +43,15 @@ class HTTPClient:
             try:
                 response = await self.request_async(method, url, headers, params)
                 connection_error = None
+                log_info('Request is sussess', code=response[-1])
             except APIConnectionError as e:
                 connection_error = e
+                log_info('Requests has exception', except_=e.message)
                 response = None
             if self._should_retry(response, connection_error, num_retries, max_retries):
                 num_retries += 1
                 sleep_time = self._sleep_time_seconds(num_retries)
+                log_info('Retrie request after seconds', seconds=sleep_time)
                 await anyio.sleep(sleep_time)
             else:
                 if response is not None:
@@ -81,7 +90,7 @@ class HTTPClient:
 
         if self._timeout:
             kwargs['timeout'] = self._timeout
-        return [(method, url), {'json': params or {},'headers': headers, **kwargs}]
+        return [(method, url), {'json': params or {}, 'headers': headers, **kwargs}]
 
     def _handle_request_error(self, e: Exception) -> NoReturn:
         msg = (

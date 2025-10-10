@@ -27,7 +27,6 @@ class APIRequestor:
     def _replace_options(self, options: RequestOptions | None) -> 'APIRequestor':
         options = options or {}
         new_options = self._options.to_dict()
-        log_debug('New Options', Options=new_options)
         return APIRequestor(
             options=RequestorOptions(**new_options),
             client=self._client,
@@ -74,6 +73,7 @@ class APIRequestor:
                           options: RequestOptions | None = None,
                           ):
         request_options = merge_options(self._options, options)
+        log_debug('New_options', options=request_options)
         client_id = request_options.get('client_id')
         oauth_token = request_options.get('oauth_token')
         webhook = request_options.get('webhook_url')

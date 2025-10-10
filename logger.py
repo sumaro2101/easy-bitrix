@@ -34,7 +34,7 @@ def make_log_sctucture(props: dict):
         if not isinstance(value, str):
             value = str(value)
         if re.search(r'\s', value):
-            value = repr(key)
+            value = repr(value)
         if re.search(r'\s', key):
             key = repr(key)
         return f'{key}={value}'
