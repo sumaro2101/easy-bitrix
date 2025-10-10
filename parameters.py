@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Generic, TypeVar
 from .fields import DEAL_FIELD, LEAD_FIELD
+from .common import LogicErrors
 
 
 T = TypeVar('T')
@@ -47,7 +48,14 @@ class Deal:
         return {DEAL_FIELD.ASSIGNED_BY_ID: value}
 
     @staticmethod
-    def DATE_CREATE(value: datetime) -> dict[str, str]:
+    def DATE_CREATE(value: datetime | str) -> dict[str, str]:
+        try:
+            if not isinstance(value, (datetime, str)):
+                raise ValueError(LogicErrors.WRONG_TYPE_PARAMETER.format(value.__class__.__name__))
+            if isinstance(value, str):
+                value = datetime.fromisoformat(value)
+        except ValueError as e:
+            raise e
         return {DEAL_FIELD.DATE_CREATE: value.isoformat()}
 
 

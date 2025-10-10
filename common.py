@@ -6,6 +6,7 @@ class LogicErrors(str, Enum):
     UNSUPPERTED_HIGH_LEVEL_DOMAIN = 'Unsupported high level domain.'
     FILTER_PARAMETER_ERROR = 'This parameter has wrong type.'
     CREATE_DEFAULT_OPTIONS_ERROR = 'Default options can`t be created. You need env {} or not specified refresh token.'
+    WRONG_TYPE_PARAMETER = 'Type of {} is wrong for this parameter.'
 
 
 class NetworkErrors(str, Enum):
