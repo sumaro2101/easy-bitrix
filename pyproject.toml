@@ -10,6 +10,11 @@ requires-python = ">=3.8"
 dependencies = [
     "httpx (>=0.28.1,<0.29.0)"
 ]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+
+[project.urls]
+Homepage = "https://github.com/sumaro2101/easy-bitrix"
 
 
 [build-system]
