@@ -16,6 +16,7 @@ class BitrixResponse:
         if 'error' in self.data:
             self.error = self.data.get('error')
         else:
-            self.total = self.data['total']
-            self.time = self.data['time']
-            self.data = self.data['result']
+            if 'result' in self.data:
+                self.total = self.data['total']
+                self.time = self.data['time']
+                self.data = self.data['result']
