@@ -20,6 +20,7 @@ class NetworkErrors(str, Enum):
     OAUTH_CLIEND_ID_AUTHENTICATION_ERROR = 'Miss Client id authentication.'
     WEBHOOK_USER_ID_AUTHENTICATION_ERROR = 'Miss User id in webhook request process.'
     WEBHOOK_URL_AUTHENTICATION_ERROR = 'Miss Webhook url in webhook request process.'
+    INVALID_RESPONSE_BODY = 'Invalid response body from API: {} (HTTP response code was {})'
 
 
 class BitrixResponseErrors(str, Enum):
