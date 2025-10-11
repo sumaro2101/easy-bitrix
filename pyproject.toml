@@ -18,5 +18,5 @@ Homepage = "https://github.com/sumaro2101/easy-bitrix"
 
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
