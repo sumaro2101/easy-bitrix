@@ -1,11 +1,11 @@
 from typing import Any, ClassVar
-import json
 
 from .http_client import HTTPClient
 from .options import RequestorOptions, GlobalRequestorOptions, RequestOptions, merge_options
-from .error import AuthenticationError, UnsupportedDomain, EmptyMethodError
+from .error import AuthenticationError, UnsupportedDomain, EmptyMethodError, APIError
 from .common import NetworkErrors, LogicErrors
 from .logger import log_debug, log_info
+from .response_object import BitrixResponse
 
 
 class APIRequestor:
@@ -40,26 +40,28 @@ class APIRequestor:
     def request(self,
                 bitrix_address: str | None, params=None,
                 options: RequestOptions | None = None,
-                ) -> tuple[dict[str, Any], int]:
+                ) -> BitrixResponse:
         requestor = self._replace_options(options)
         raw_body, raw_code = requestor.request_raw(
             bitrix_address=bitrix_address,
             params=params,
             options=options,
         )
-        return json.loads(raw_body), raw_code
+        response = self._switch_to_object(raw_body, raw_code)
+        return response
 
     async def request_async(self,
                             bitrix_address: str, params=None,
                             options: RequestOptions | None = None,
-                            ) -> tuple[dict[str, Any], int]:
+                            ) -> BitrixResponse:
         requestor = self._replace_options(options)
         raw_body, raw_code = await requestor.request_raw_async(
             bitrix_address=bitrix_address,
             params=params,
             options=options,
         )
-        return json.loads(raw_body), raw_code
+        response = self._switch_to_object(raw_body, raw_code)
+        return response
 
     def request_raw(self,
                     bitrix_address: str | None, params=None,
@@ -141,3 +143,19 @@ class APIRequestor:
         max_network_retries = request_options.get('max_network_retries')
         headers = {'Content-Type': 'application/json'}
         return abs_url, headers, params, max_network_retries
+
+    def _switch_to_object(self, body: str | bytes, code: str) -> BitrixResponse:
+        try:
+            if hasattr(body, 'decode'):
+                body = body.decode('utf-8')
+            response = BitrixResponse(
+                code=code,
+                body=body,
+            )
+        except Exception:
+            raise APIError(
+                NetworkErrors.INVALID_RESPONSE_BODY.format(body, code),
+                http_status=code,
+                json_body=body,
+                )
+        return response
