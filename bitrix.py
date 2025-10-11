@@ -1,7 +1,3 @@
-from json import loads
-from logging import info
-from requests import post
-
 from .options import RequestOptions
 from .error import CreateDefaultOptionsError
 from .common import LogicErrors
@@ -58,31 +54,3 @@ class Bitrix24:
             high_level_domain='ru',
         )
         return options
-
-    def refresh_tokens(self):
-        """Refresh access tokens
-        :return:
-        """
-        r = {}
-
-        try:
-            # Make call to oauth server
-            r = post(
-                self.oauth_url,
-                params={'grant_type': 'refresh_token', 'client_id': self.client_id, 'client_secret': self.client_secret,
-                        'refresh_token': self.refresh_token})
-            result = loads(r.text)
-            # Renew access tokens
-            self.auth_token = result['access_token']
-            self.refresh_token = result['refresh_token']
-            info(['Tokens', self.auth_token, self.refresh_token])
-            return True
-        except (ValueError, KeyError):
-            result = dict(error='Error on decode oauth response [' + r.text + ']')
-            return result
-
-    def get_tokens(self):
-        """Get access tokens
-        :return: dict
-        """
-        return {'auth_token': self.auth_token, 'refresh_token': self.refresh_token}
