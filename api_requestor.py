@@ -38,7 +38,7 @@ class APIRequestor:
         return APIRequestor._global_instance()._replace_options(param)
 
     def request(self,
-                bitrix_address: str, params=None,
+                bitrix_address: str | None, params=None,
                 options: RequestOptions | None = None,
                 ) -> tuple[dict[str, Any], int]:
         requestor = self._replace_options(options)
@@ -62,7 +62,7 @@ class APIRequestor:
         return json.loads(raw_body), raw_code
 
     def request_raw(self,
-                    bitrix_address: str, params=None,
+                    bitrix_address: str | None, params=None,
                     options: RequestOptions | None = None,
                     ) -> tuple[bytes, int]:
         abs_url, headers, params, max_network_retries = self._args_for_request(
@@ -102,39 +102,42 @@ class APIRequestor:
         return raw_content, raw_code
 
     def _args_for_request(self,
-                          bitrix_address: str, params=None,
+                          bitrix_address: str | None, params=None,
                           options: RequestOptions | None = None,
                           ) -> tuple[str, dict[str, str], dict[str, Any], int]:
         request_options = merge_options(self._options, options)
         log_debug('New_options', options=request_options)
         client_id = request_options.get('client_id')
-        oauth_token = request_options.get('oauth_token')
-        webhook = request_options.get('webhook_url')
-        user_id = request_options.get('user_id')
         params = params.__dict__
-        method = params.pop('method')
-        match (bool(client_id), bool(oauth_token), bool(webhook), bool(user_id)):
-            case True, False, _, _:
-                raise AuthenticationError(NetworkErrors.OAUTH_TOKEN_AUTHENTICATION_ERROR.value)
-            case False, True, _, _:
-                raise AuthenticationError(NetworkErrors.OAUTH_CLIEND_ID_AUTHENTICATION_ERROR.value)
-            case _, _, True, False:
-                raise AuthenticationError(NetworkErrors.WEBHOOK_USER_ID_AUTHENTICATION_ERROR.value)
-            case _, _, False, True:
-                raise AuthenticationError(NetworkErrors.WEBHOOK_URL_AUTHENTICATION_ERROR.value)
-            case False, False, False, False:
-                raise AuthenticationError(NetworkErrors.AUTHENTICATION_MISS_ERROR.value)
-        abs_url = self._options.api_addresses['api']
-        domain = request_options.get('high_level_domain')
-        if not domain:
-            raise EmptyMethodError(LogicErrors.METHOD_EMPTY_ERROR.value)
-        if domain not in ['ru', 'com', 'de']:
-            raise UnsupportedDomain(LogicErrors.UNSUPPERTED_HIGH_LEVEL_DOMAIN.value)
-        if webhook:
-            webhook_params_with_method = f'{user_id}/{webhook}/{method}'
-            abs_url = abs_url.format(bitrix_address, domain, webhook_params_with_method)
+        if not request_options.get('oauth_authorization'):
+            oauth_token = request_options.get('oauth_token')
+            webhook = request_options.get('webhook_url')
+            user_id = request_options.get('user_id')
+            method = params.pop('method')
+            match (bool(client_id), bool(oauth_token), bool(webhook), bool(user_id)):
+                case True, False, _, _:
+                    raise AuthenticationError(NetworkErrors.OAUTH_TOKEN_AUTHENTICATION_ERROR.value)
+                case False, True, _, _:
+                    raise AuthenticationError(NetworkErrors.OAUTH_CLIEND_ID_AUTHENTICATION_ERROR.value)
+                case _, _, True, False:
+                    raise AuthenticationError(NetworkErrors.WEBHOOK_USER_ID_AUTHENTICATION_ERROR.value)
+                case _, _, False, True:
+                    raise AuthenticationError(NetworkErrors.WEBHOOK_URL_AUTHENTICATION_ERROR.value)
+                case False, False, False, False:
+                    raise AuthenticationError(NetworkErrors.AUTHENTICATION_MISS_ERROR.value)
+            domain = request_options.get('high_level_domain')
+            if not domain:
+                raise EmptyMethodError(LogicErrors.METHOD_EMPTY_ERROR.value)
+            if domain not in ['ru', 'com', 'de']:
+                raise UnsupportedDomain(LogicErrors.UNSUPPERTED_HIGH_LEVEL_DOMAIN.value)
+            abs_url = self._options.api_addresses['api']
+            if webhook:
+                webhook_params_with_method = f'{user_id}/{webhook}/{method}'
+                abs_url = abs_url.format(bitrix_address, domain, webhook_params_with_method)
+            else:
+                abs_url = abs_url.format(bitrix_address, domain, method)
         else:
-            abs_url = abs_url.format(bitrix_address, domain, method)
+            abs_url = self._options.api_addresses['oauth']
         max_network_retries = request_options.get('max_network_retries')
         headers = {'Content-Type': 'application/json'}
         return abs_url, headers, params, max_network_retries
