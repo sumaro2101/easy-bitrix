@@ -111,3 +111,5 @@ cython_debug/
 # VS Code
 .vscode/
 .__pycache__/*
+
+.pypirc
