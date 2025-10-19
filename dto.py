@@ -8,6 +8,16 @@ class SelectData:
 
 
 @dataclass
+class IDAddition:
+    id: int
+
+
+@dataclass
+class EntityTypeIdAddtion:
+    entityTypeId: int
+
+
+@dataclass
 class SelectListData(SelectData):
     select: list[str] = field(default_factory=['*'])
     filter: dict[str, str | int | float | list[str | int | float]] = field(default_factory=dict())
@@ -16,12 +26,22 @@ class SelectListData(SelectData):
 
 
 @dataclass
-class SelectGetData(SelectData):
-    id: dict[str, int]
+class SelectGetData(IDAddition, SelectData):
+    ...
+
+
+@dataclass
+class SelectGetItemData(IDAddition, SelectData):
+    ...
 
 
 @dataclass
 class GetFieldsData(SelectData):
+    ...
+
+
+@dataclass
+class GetFieldsItemData(EntityTypeIdAddtion, SelectData):
     ...
 
 
@@ -32,15 +52,19 @@ class AddData(SelectData):
 
 
 @dataclass
-class UpdateData(SelectData):
-    id: dict[str, int]
+class UpdateData(IDAddition, SelectData):
     fields: dict[str, str | int | float] = field(default_factory=dict())
     params: dict[str, str] = field(default_factory=dict())
 
 
 @dataclass
-class DeleteData(SelectData):
-    id: dict[str, int]
+class DeleteData(IDAddition, SelectData):
+    ...
+
+
+@dataclass
+class DeleteItemData(EntityTypeIdAddtion, SelectData):
+    ...
 
 
 @dataclass

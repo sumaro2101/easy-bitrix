@@ -49,6 +49,7 @@ class OrderTo(str, Enum):
 
 
 class BitrixCRMTypes(str, Enum):
+    ITEM = 'item'
     LEAD = 'lead'
     DEAL = 'deal'
     CONTACT = 'contact'
@@ -71,3 +72,14 @@ class BitrixMethods(str, Enum):
     ADD = 'add'
     UPDATE = 'update'
     DELETE = 'delete'
+
+
+class BitrixStages:
+    NEW = 'NEW'
+    PREPARATION = 'PREPARATION'
+    PREPAYMENT_INVOICE = 'PREPAYMENT_INVOICE'
+    EXECUTING = 'EXECUTING'
+    FINAL_INVOICE = 'FINAL_INVOICE'
+    WON = 'WON'
+    LOSE = '>LOSE'
+    APOLOGY = 'APOLOGY'
