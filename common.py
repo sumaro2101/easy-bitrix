@@ -49,6 +49,7 @@ class OrderTo(str, Enum):
 
 
 class BitrixCRMTypes(str, Enum):
+    ITEM = 'item'
     LEAD = 'lead'
     DEAL = 'deal'
     CONTACT = 'contact'

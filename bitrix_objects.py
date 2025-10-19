@@ -2,9 +2,9 @@ from typing import Any, ClassVar, Literal
 
 from datetime import datetime
 
-from .fields import DEAL_FIELD, CONTACT_FIELD
+from .fields import DEAL_FIELD, CONTACT_FIELD, ITEM_FIELD
 from .common import LogicErrors, BitrixMethods, BitrixParams, BitrixCRMTypes
-from .dto import SelectGetData, SelectListData, GetFieldsData, DeleteData, AddData, UpdateData
+from . import dto
 from .parameters import Select, Filter, Order, Fields
 
 
@@ -18,21 +18,21 @@ class BaseBitrixObject:
     root: ClassVar[str]
 
     @classmethod
-    def get(cls, id: int) -> SelectGetData:
+    def get(cls, id: int) -> dto.SelectGetData:
         method = cls.root.format(cls.NAME_OBJECT_ACTION, BitrixMethods.GET.value)
-        return SelectGetData(method=method, id=id)
+        return dto.SelectGetData(method=method, id=id)
 
     @classmethod
     def get_list(cls, select: list[str] | None = None,
                  filter: list[dict[str, str | list[str, int, float]]] | None = None,
                  order: list[dict[str, str]] | None = None,
                  start: int = 0,
-                 ) -> SelectListData:
+                 ) -> dto.SelectListData:
         method = cls.root.format(cls.NAME_OBJECT_ACTION, BitrixMethods.LIST.value)
         select = Select(*list(select)).compare if select else ['*', 'UF_*']
         filter_ = Filter(*list(filter)).compare if filter else dict()
         order = Order(*list(order)).compare if order else dict()
-        return SelectListData(
+        return dto.SelectListData(
             method=method,
             select=select,
             filter=filter_,
@@ -41,12 +41,12 @@ class BaseBitrixObject:
         )
 
     @classmethod
-    def fields(cls) -> GetFieldsData:
+    def fields(cls) -> dto.GetFieldsData:
         method = cls.root.format(cls.NAME_OBJECT_ACTION, BitrixMethods.FIELDS.value)
-        return GetFieldsData(method=method)
+        return dto.GetFieldsData(method=method)
 
     @classmethod
-    def create(cls, fields: list[dict[str, str]], reg_sonet: bool = True, import_: bool = False) -> AddData:
+    def create(cls, fields: list[dict[str, str]], reg_sonet: bool = True, import_: bool = False) -> dto.AddData:
         kwargs = dict()
         method = cls.root.format(cls.NAME_OBJECT_ACTION, BitrixMethods.ADD.value)
         fields = Fields(*list(fields)).compare
@@ -57,10 +57,10 @@ class BaseBitrixObject:
         if cls.IMPORT_OPTION:
             value = 'Y' if import_ else ''
             kwargs.update(params={BitrixParams.IMPORT.value: value})
-        return AddData(**kwargs)
+        return dto.AddData(**kwargs)
 
     @classmethod
-    def update(cls, fields: list[dict[str, str]], reg_sonet: bool = True, import_: bool = False) -> UpdateData:
+    def update(cls, fields: list[dict[str, str]], reg_sonet: bool = True, import_: bool = False) -> dto.UpdateData:
         kwargs = dict()
         method = cls.root.format(cls.NAME_OBJECT_ACTION, BitrixMethods.UPDATE.value)
         fields = Fields(*list(fields)).compare
@@ -69,16 +69,54 @@ class BaseBitrixObject:
             kwargs.update(params='Y' if reg_sonet else 'N')
         if cls.IMPORT_OPTION:
             kwargs.update(params='Y' if import_ else '')
-        return UpdateData(**kwargs)
+        return dto.UpdateData(**kwargs)
 
     @classmethod
-    def delete(cls, id: int) -> DeleteData:
+    def delete(cls, id: int) -> dto.DeleteData:
         method = cls.root.format(cls.NAME_OBJECT_ACTION, BitrixMethods.DELETE.value)
-        return DeleteData(method=method, id=id)
+        return dto.DeleteData(method=method, id=id)
 
     @staticmethod
     def SET_UF(key: str, value: Any) -> dict[str, Any]:
         return {f'UF_{key}': value}
+
+
+class Item(BaseBitrixObject):
+    NAME_OBJECT_ACTION = BitrixCRMTypes.ITEM.value
+
+    ID = ITEM_FIELD.ID
+    ENTITY_TYPE_ID = ITEM_FIELD.ENTITY_TYPE_ID
+    USE_ORIGINAL_UF_NAMES = ITEM_FIELD.USE_ORIGINAL_UF_NAMES
+
+    root = 'crm.{}.{}'
+
+    @staticmethod
+    def SET_ID(value: int) -> dict[str, int]:
+        """Unique deal ID."""
+        return {ITEM_FIELD.ID: int(value)}
+
+    @staticmethod
+    def SET_ENTITY_TYPE_ID(value: int) -> dict[str, int]:
+        return {ITEM_FIELD.ENTITY_TYPE_ID: int(value)}
+
+    @staticmethod
+    def SET_USE_ORIGINAL_UF_NAMES(value: bool) -> dict[str, str]:
+        return 'Y' if value else 'N'
+
+    @classmethod
+    def get(cls, item_id: int) -> dto.GetFieldsItemData:
+        method = cls.root.format(cls.NAME_OBJECT_ACTION, BitrixMethods.GET.value)
+        return dto.GetFieldsItemData(method=method, entityTypeId=item_id)
+
+    @classmethod
+    def fields(cls, item_id: int) -> dto.GetFieldsItemData:
+        method = cls.root.format(cls.NAME_OBJECT_ACTION, BitrixMethods.FIELDS.value)
+        return dto.GetFieldsItemData(method=method, entityTypeId=item_id)
+
+    @classmethod
+    def delete(cls, item_id: int) -> dto.DeleteItemData:
+        method = cls.root.format(cls.NAME_OBJECT_ACTION, BitrixMethods.DELETE.value)
+        return dto.DeleteItemData(method=method, entityTypeId=item_id)
 
 
 class Deal[T](BaseBitrixObject):
@@ -137,6 +175,11 @@ class Deal[T](BaseBitrixObject):
     LAST_ACTIVITY_TIME = DEAL_FIELD.LAST_ACTIVITY_TIME
 
     root = 'crm.{}.{}'
+
+    @staticmethod
+    def SET_ID(value: int) -> dict[str, int]:
+        """Unique deal ID."""
+        return {DEAL_FIELD.ID: value}
 
     @staticmethod
     def SET_TITLE(value: T) -> dict[str, T]:

@@ -1,3 +1,17 @@
+class ItemField:
+    @property
+    def ID(self) -> str:
+        return 'ID'
+
+    @property
+    def ENTITY_TYPE_ID(self) -> str:
+        return 'entityTypeId'
+
+    @property
+    def USE_ORIGINAL_UF_NAMES(self):
+        return 'useOriginalUfNames'
+
+
 class DealField:
 
     @property
@@ -522,3 +536,4 @@ class LeadField:
 DEAL_FIELD = DealField()
 LEAD_FIELD = LeadField()
 CONTACT_FIELD = ContactField()
+ITEM_FIELD = ItemField()
