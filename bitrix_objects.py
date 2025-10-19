@@ -118,14 +118,25 @@ class Deal[T](BaseBitrixObject):
     UTM_CAMPAIGN = DEAL_FIELD.UTM_CAMPAIGN
     UTM_CONTENT = DEAL_FIELD.UTM_CONTENT
     UTM_TERM = DEAL_FIELD.UTM_TERM
-    TRACE = DEAL_FIELD.TRACE
+    IS_RETURN_CUSTOMER = DEAL_FIELD.IS_RETURN_CUSTOMER
+    CONTACT_IDS = DEAL_FIELD.CONTACT_IDS
+    TAX_VALUE = DEAL_FIELD.TAX_VALUE
+    CLOSED = DEAL_FIELD.CLOSED
+    ADDITIONAL_INFO = DEAL_FIELD.ADDITIONAL_INFO
+    LOCATION_ID = DEAL_FIELD.LOCATION_ID
+    IS_REPEATED_APPROACH = DEAL_FIELD.IS_REPEATED_APPROACH
+    IS_NEW = DEAL_FIELD.IS_NEW
+    QUOTE_ID = DEAL_FIELD.QUOTE_ID
+    CREATED_BY_ID = DEAL_FIELD.CREATED_BY_ID
+    MODIFY_BY_ID = DEAL_FIELD.MODIFY_BY_ID
+    MOVED_BY_ID = DEAL_FIELD.MOVED_BY_ID
+    DATE_MODIFY = DEAL_FIELD.DATE_MODIFY
+    MOVED_TIME = DEAL_FIELD.MOVED_TIME
+    LEAD_ID = DEAL_FIELD.LEAD_ID
+    LAST_ACTIVITY_BY = DEAL_FIELD.LAST_ACTIVITY_BY
+    LAST_ACTIVITY_TIME = DEAL_FIELD.LAST_ACTIVITY_TIME
 
     root = 'crm.{}.{}'
-
-    @staticmethod
-    def SET_ID(value: int) -> dict[str, int]:
-        """Unique deal ID."""
-        return {DEAL_FIELD.ID: value}
 
     @staticmethod
     def SET_TITLE(value: T) -> dict[str, T]:
@@ -161,20 +172,6 @@ class Deal[T](BaseBitrixObject):
     def SET_ASSIGNED_BY_ID(value: T | list[T]) -> dict[str, T, list[T]]:
         """User ID of the responsible person for the deal."""
         return {DEAL_FIELD.ASSIGNED_BY_ID: value}
-
-    @staticmethod
-    def SET_DATE_CREATE(value: datetime | str) -> dict[str, str]:
-        """Date and time when the deal was created. Format: ISO 8601 string or datetime object."""
-        try:
-            if not isinstance(value, (datetime, str)):
-                raise ValueError(
-                    LogicErrors.WRONG_TYPE_PARAMETER.format(value.__class__.__name__)
-                )
-            if isinstance(value, str):
-                value = datetime.fromisoformat(value)
-        except ValueError as e:
-            raise e
-        return {DEAL_FIELD.DATE_CREATE: value.isoformat()}
 
     @staticmethod
     def SET_PROBABILITY(value: int) -> dict[str, int]:
@@ -294,6 +291,68 @@ class Deal[T](BaseBitrixObject):
         """Trace information for the deal."""
         return {DEAL_FIELD.TRACE: str(value)}
 
+    @staticmethod
+    def SET_IS_RETURN_CUSTOMER(value: bool) -> dict[str, str]:
+        """Indicates if the deal is for a returning customer (`Y` or `N`)."""
+        return {DEAL_FIELD.IS_RETURN_CUSTOMER: 'Y' if value else 'N'}
+
+    @staticmethod
+    def SET_CONTACT_IDS(value: list[int]) -> dict[str, list[int]]:
+        """List of contact IDs associated with the deal."""
+        return {DEAL_FIELD.CONTACT_IDS: value}
+
+    @staticmethod
+    def SET_TAX_VALUE(value: float) -> dict[str, float]:
+        """Tax value for the deal."""
+        return {DEAL_FIELD.TAX_VALUE: float(value)}
+
+    @staticmethod
+    def SET_CLOSED(value: bool) -> dict[str, str]:
+        """Indicates if the deal is closed (`Y` or `N`)."""
+        return {DEAL_FIELD.CLOSED: 'Y' if value else 'N'}
+
+    @staticmethod
+    def SET_ADDITIONAL_INFO(value: str) -> dict[str, str]:
+        """Additional information for the deal."""
+        return {DEAL_FIELD.ADDITIONAL_INFO: str(value)}
+
+    @staticmethod
+    def SET_LOCATION_ID(value: int) -> dict[str, int]:
+        """Location ID for the deal."""
+        return {DEAL_FIELD.LOCATION_ID: int(value)}
+
+    @staticmethod
+    def SET_IS_REPEATED_APPROACH(value: bool) -> dict[str, str]:
+        """Indicates if the deal is a repeated approach (`Y` or `N`)."""
+        return {DEAL_FIELD.IS_REPEATED_APPROACH: 'Y' if value else 'N'}
+
+    @staticmethod
+    def SET_LAST_ACTIVITY_BY(value: int) -> dict[str, int]:
+        return {DEAL_FIELD.LAST_ACTIVITY_BY: int(value)}
+
+    @staticmethod
+    def SET_LAST_ACTIVITY_TIME(value: str | datetime) -> dict[str, str]:
+        try:
+            if not isinstance(value, (datetime, str)):
+                raise ValueError(
+                    LogicErrors.WRONG_TYPE_PARAMETER.format(value.__class__.__name__)
+                )
+            if isinstance(value, str):
+                value = datetime.fromisoformat(value)
+        except ValueError as e:
+            raise e
+        return {DEAL_FIELD.LAST_ACTIVITY_TIME: value.isoformat()}
+
+    @staticmethod
+    def PARENT_ID(value: int) -> str:
+        value = str(value)
+        return "PARENT_ID_" + value
+
+    @staticmethod
+    def SET_PARENT_ID(value: int) -> dict[str, int]:
+        value = str(value)
+        return {f'PARENT_ID_ + {value}': int(value)}
+
 
 class Contact(BaseBitrixObject):
     """
@@ -379,7 +438,7 @@ class Contact(BaseBitrixObject):
                 value = datetime.fromisoformat(value)
         except ValueError as e:
             raise e
-        return {DEAL_FIELD.BEGINDATE: value.isoformat()}
+        return {CONTACT_FIELD.BIRTHDATE: value.isoformat()}
 
     @staticmethod
     def SET_TYPE_ID(value: str) -> dict[str, str]:

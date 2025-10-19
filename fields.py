@@ -21,6 +21,10 @@ class DealField:
         return 'STAGE_ID'
 
     @property
+    def IS_NEW(self) -> str:
+        return 'IS_NEW'
+
+    @property
     def COMPANY_ID(self):
         return 'COMPANY_ID'
 
@@ -53,12 +57,24 @@ class DealField:
         return 'CONTACT_IDS'
 
     @property
+    def QUOTE_ID(self):
+        return 'QUOTE_ID'
+
+    @property
     def COMMENTS(self):
         return 'COMMENTS'
 
     @property
     def DATE_CREATE(self) -> str:
         return 'DATE_CREATE'
+
+    @property
+    def DATE_MODIFY(self):
+        return 'DATE_MODIFY'
+
+    @property
+    def MOVED_TIME(self):
+        return 'MOVED_TIME'
 
     @property
     def OPENED(self):
@@ -89,16 +105,28 @@ class DealField:
         return 'CLOSED'
 
     @property
+    def CREATED_BY_ID(self):
+        return 'CREATED_BY_ID'
+
+    @property
+    def MODIFY_BY_ID(self):
+        return 'MODIFY_BY_ID'
+
+    @property
+    def MOVED_BY_ID(self):
+        return 'MOVED_BY_ID'
+
+    @property
     def ADDITIONAL_INFO(self) -> str:
         return 'ADDITIONAL_INFO'
 
     @property
-    def LOCATION_ID(self) -> str:
-        return 'LOCATION_ID'
+    def LEAD_ID(self) -> str:
+        return 'LEAD_ID'
 
     @property
-    def TRACE(self) -> str:
-        return 'TRACE'
+    def LOCATION_ID(self) -> str:
+        return 'LOCATION_ID'
 
     @property
     def SOURCE_ID(self):
@@ -135,6 +163,14 @@ class DealField:
     @property
     def UTM_TERM(self):
         return 'UTM_TERM'
+
+    @property
+    def LAST_ACTIVITY_BY(self):
+        return 'LAST_ACTIVITY_BY'
+
+    @property
+    def LAST_ACTIVITY_TIME(self):
+        return 'LAST_ACTIVITY_TIME'
 
 
 class ContactField:
