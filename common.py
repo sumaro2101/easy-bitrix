@@ -54,6 +54,8 @@ class BitrixCRMTypes(str, Enum):
     DEAL = 'deal'
     CONTACT = 'contact'
     COMPANY = 'company'
+    REQUISITE = 'requisite'
+    ACTIVITY = 'activity'
     QUOTE = 'quote'
     ADDRESS = 'address'
     STATUS = 'status'
