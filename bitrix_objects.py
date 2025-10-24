@@ -104,19 +104,34 @@ class Item(BaseBitrixObject):
         return 'Y' if value else 'N'
 
     @classmethod
-    def get(cls, item_id: int) -> dto.GetFieldsItemData:
-        method = cls.root.format(cls.NAME_OBJECT_ACTION, BitrixMethods.GET.value)
-        return dto.GetFieldsItemData(method=method, entityTypeId=item_id)
+    def get(cls, type_id: int, id: int) -> dto.GetFieldsItemData:
+        data = super().get(id=id)
+        return dto.GetFieldsItemData(entityTypeId=type_id, **data.__dict__)
 
     @classmethod
-    def fields(cls, item_id: int) -> dto.GetFieldsItemData:
-        method = cls.root.format(cls.NAME_OBJECT_ACTION, BitrixMethods.FIELDS.value)
-        return dto.GetFieldsItemData(method=method, entityTypeId=item_id)
+    def get_list(cls, type_id: int, select=None, filter=None, order=None, start=0):
+        data = super().get_list(select, filter, order, start)
+        return dto.SelectListItemData(entityTypeId=type_id, **data.__dict__)
 
     @classmethod
-    def delete(cls, item_id: int) -> dto.DeleteItemData:
-        method = cls.root.format(cls.NAME_OBJECT_ACTION, BitrixMethods.DELETE.value)
-        return dto.DeleteItemData(method=method, entityTypeId=item_id)
+    def create(cls, type_id: int, fields):
+        data = super().create(fields)
+        return dto.AddItemData(entityTypeId=type_id, **data.__dict__)
+
+    @classmethod
+    def update(cls, type_id: int, id: int, fields):
+        data = super().update(fields)
+        return dto.UpdateItemData(id=id, type_id=type_id, **data.__dict__)
+
+    @classmethod
+    def fields(cls, type_id: int) -> dto.GetFieldsItemData:
+        data = super().fields()
+        return dto.GetFieldsItemData(entityTypeId=type_id, **data.__dict__)
+
+    @classmethod
+    def delete(cls, type_id: int, id: int) -> dto.DeleteItemData:
+        data = super().delete(id=id)
+        return dto.DeleteItemData(entityTypeId=type_id, **data.__dict__)
 
 
 class Deal[T](BaseBitrixObject):
