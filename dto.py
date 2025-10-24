@@ -68,7 +68,7 @@ class UpdateData(IDAddition, SelectData):
 
 
 @dataclass
-class UpdateItemData(EntityTypeIdAddtion, IDAddition, UpdateData):
+class UpdateItemData(EntityTypeIdAddtion, UpdateData):
     ...
 
 
