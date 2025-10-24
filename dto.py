@@ -27,7 +27,7 @@ class SelectListData(SelectData):
 
 @dataclass
 class SelectListItemData(EntityTypeIdAddtion, SelectListData):
-    ...
+    useOriginalUfNames: Literal['Y', 'N'] = field(default='N')
 
 
 @dataclass
@@ -37,7 +37,7 @@ class SelectGetData(IDAddition, SelectData):
 
 @dataclass
 class SelectGetItemData(EntityTypeIdAddtion, IDAddition, SelectData):
-    ...
+    useOriginalUfNames: Literal['Y', 'N'] = field(default='N')
 
 
 @dataclass

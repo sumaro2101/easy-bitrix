@@ -95,8 +95,12 @@ class BaseBitrixObject:
         return dto.DeleteData(method=method, id=id)
 
     @staticmethod
-    def SET_UF(key: str, value: Any) -> dict[str, Any]:
+    def SET_UF_KEY_VALUE(key: str, value: Any) -> dict[str, Any]:
         return {f'UF_{key}': value}
+
+    @staticmethod
+    def SET_UF_KEY(key: str) -> str:
+        return f'UF_{str(key)}'
 
 
 class Item(BaseBitrixObject):
@@ -122,24 +126,26 @@ class Item(BaseBitrixObject):
         return 'Y' if value else 'N'
 
     @classmethod
-    def get(cls, type_id: int, id: int) -> dto.GetFieldsItemData:
+    def get(cls, type_id: int, id: int, use_original_uf_names: bool = False) -> dto.SelectGetItemData:
         data = super().get(id=id)
-        return dto.GetFieldsItemData(entityTypeId=type_id, **data.__dict__)
+        original_names = 'Y' if use_original_uf_names else 'F'
+        return dto.SelectGetItemData(entityTypeId=type_id, **data.__dict__, useOriginalUfNames=original_names)
 
     @classmethod
-    def get_list(cls, type_id: int, select=None, filter=None, order=None, start=0):
+    def get_list(cls, type_id: int, select=None, filter=None, use_original_uf_names: bool = False, order=None, start=0) -> dto.SelectListItemData:
         data = super().get_list(select, filter, order, start)
-        return dto.SelectListItemData(entityTypeId=type_id, **data.__dict__)
+        original_names = 'Y' if use_original_uf_names else 'F'
+        return dto.SelectListItemData(entityTypeId=type_id, **data.__dict__, useOriginalUfNames=original_names)
 
     @classmethod
-    def create(cls, type_id: int, fields):
+    def create(cls, type_id: int, fields) -> dto.AddItemData:
         data = super().create(fields)
         return dto.AddItemData(entityTypeId=type_id, **data.__dict__)
 
     @classmethod
-    def update(cls, type_id: int, id: int, fields):
+    def update(cls, type_id: int, id: int, fields) -> dto.UpdateItemData:
         data = super().update(fields)
-        return dto.UpdateItemData(id=id, type_id=type_id, **data.__dict__)
+        return dto.UpdateItemData(id=id, entityTypeId=type_id, **data.__dict__)
 
     @classmethod
     def fields(cls, type_id: int) -> dto.GetFieldsItemData:
