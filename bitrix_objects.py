@@ -17,8 +17,8 @@ from .parameters import Select, Filter, Order, Fields
 
 
 class BaseBitrixObject:
-    """
-    """
+    """ """
+
     NAME_OBJECT_ACTION: ClassVar[str]
     REGISTER_SONET_EVENT_OPTION: ClassVar[bool]
     IMPORT_OPTION: ClassVar[bool]
@@ -27,20 +27,19 @@ class BaseBitrixObject:
 
     @classmethod
     def get(cls, id: int) -> dto.SelectGetData:
-        method = cls.root.format(cls.NAME_OBJECT_ACTION,
-                                 BitrixMethods.GET.value)
+        method = cls.root.format(cls.NAME_OBJECT_ACTION, BitrixMethods.GET.value)
         return dto.SelectGetData(method=method, id=id)
 
     @classmethod
-    def get_list(cls, select: list[str] | None = None,
-                 filter: list[dict[
-                     str, str | list[str, int, float]]] | None = None,
-                 order: list[dict[str, str]] | None = None,
-                 start: int = 0,
-                 ) -> dto.SelectListData:
-        method = cls.root.format(cls.NAME_OBJECT_ACTION,
-                                 BitrixMethods.LIST.value)
-        select = Select(*list(select)).compare if select else ['*', 'UF_*']
+    def get_list(
+        cls,
+        select: list[str] | None = None,
+        filter: list[dict[str, str | list[str, int, float]]] | None = None,
+        order: list[dict[str, str]] | None = None,
+        start: int = 0,
+    ) -> dto.SelectListData:
+        method = cls.root.format(cls.NAME_OBJECT_ACTION, BitrixMethods.LIST.value)
+        select = Select(*list(select)).compare if select else ["*", "UF_*"]
         filter_ = Filter(*list(filter)).compare if filter else dict()
         order = Order(*list(order)).compare if order else dict()
         return dto.SelectListData(
@@ -53,69 +52,94 @@ class BaseBitrixObject:
 
     @classmethod
     def fields(cls) -> dto.GetFieldsData:
-        method = cls.root.format(cls.NAME_OBJECT_ACTION,
-                                 BitrixMethods.FIELDS.value)
+        method = cls.root.format(cls.NAME_OBJECT_ACTION, BitrixMethods.FIELDS.value)
         return dto.GetFieldsData(method=method)
 
     @classmethod
-    def create(cls, fields: list[dict[str, str]], reg_sonet: bool = True,
-               import_: bool = False) -> dto.AddData:
+    def create(
+        cls, fields: list[dict[str, str]], reg_sonet: bool = True, import_: bool = False
+    ) -> dto.AddData:
         kwargs = dict()
-        method = cls.root.format(cls.NAME_OBJECT_ACTION,
-                                 BitrixMethods.ADD.value)
+        method = cls.root.format(cls.NAME_OBJECT_ACTION, BitrixMethods.ADD.value)
         fields = Fields(*list(fields)).compare
         kwargs.update(method=method, fields=fields)
         if cls.REGISTER_SONET_EVENT_OPTION:
-            value = 'Y' if reg_sonet else 'N'
-            kwargs.update(
-                params={BitrixParams.REGISTER_SONET_EVENT.value: value})
+            value = "Y" if reg_sonet else "N"
+            kwargs.update(params={BitrixParams.REGISTER_SONET_EVENT.value: value})
         if cls.IMPORT_OPTION:
-            value = 'Y' if import_ else ''
+            value = "Y" if import_ else ""
             kwargs.update(params={BitrixParams.IMPORT.value: value})
         return dto.AddData(**kwargs)
 
     @classmethod
-    def update(cls, fields: list[dict[str, str]], reg_sonet: bool = True,
-               import_: bool = False) -> dto.UpdateData:
+    def update(
+        cls, fields: list[dict[str, str]], reg_sonet: bool = True, import_: bool = False
+    ) -> dto.UpdateData:
         kwargs = dict()
-        method = cls.root.format(cls.NAME_OBJECT_ACTION,
-                                 BitrixMethods.UPDATE.value)
+        method = cls.root.format(cls.NAME_OBJECT_ACTION, BitrixMethods.UPDATE.value)
         fields = Fields(*list(fields)).compare
         kwargs.update(method=method, fields=fields)
         if cls.REGISTER_SONET_EVENT_OPTION:
-            kwargs.update(params='Y' if reg_sonet else 'N')
+            kwargs.update(params="Y" if reg_sonet else "N")
         if cls.IMPORT_OPTION:
-            kwargs.update(params='Y' if import_ else '')
+            kwargs.update(params="Y" if import_ else "")
         return dto.UpdateData(**kwargs)
 
     @classmethod
     def delete(cls, id: int) -> dto.DeleteData:
-        method = cls.root.format(cls.NAME_OBJECT_ACTION,
-                                 BitrixMethods.DELETE.value)
+        method = cls.root.format(cls.NAME_OBJECT_ACTION, BitrixMethods.DELETE.value)
         return dto.DeleteData(method=method, id=id)
 
     @staticmethod
     def SET_UF_KEY_VALUE(key: str, value: Any) -> dict[str, Any]:
-        return {f'UF_{key}': value}
+        return {f"UF_{key}": value}
 
     @staticmethod
     def SET_UF_KEY(key: str) -> str:
-        return f'UF_{str(key)}'
+        return f"UF_{str(key)}"
 
 
 class Item(BaseBitrixObject):
     NAME_OBJECT_ACTION = BitrixCRMTypes.ITEM.value
 
     ID = ITEM_FIELD.ID
+    TITLE = ITEM_FIELD.TITLE
     ENTITY_TYPE_ID = ITEM_FIELD.ENTITY_TYPE_ID
     USE_ORIGINAL_UF_NAMES = ITEM_FIELD.USE_ORIGINAL_UF_NAMES
+    CREATED_TIME = ITEM_FIELD.CREATED_TIME
 
-    root = 'crm.{}.{}'
+    root = "crm.{}.{}"
 
     @staticmethod
     def SET_ID(value: int) -> dict[str, int]:
         """Unique deal ID."""
-        return {ITEM_FIELD.ID: int(value)}
+        return {ITEM_FIELD.ID: value}
+
+    @staticmethod
+    def SET_TITLE(value: str) -> dict[str, str]:
+        return {ITEM_FIELD.TITLE: value}
+
+    @staticmethod
+    def SET_CREATED_TIME(value: datetime | str) -> dict[str, str]:
+        """Planned start date of the deal. Format: ISO 8601 string or datetime object."""
+        try:
+            if not isinstance(value, (datetime, str, list)):
+                raise ValueError(
+                    LogicErrors.WRONG_TYPE_PARAMETER.format(value.__class__.__name__)
+                )
+            if isinstance(value, str):
+                value = datetime.fromisoformat(value).isoformat()
+            if isinstance(value, list):
+                datetimes = list()
+                for datetime_ in value:
+                    if isinstance(datetime_, str):
+                        datetimes.append(datetime.fromisoformat(datetime_).isoformat())
+                    else:
+                        datetimes.append(datetime_)
+                value = datetimes
+        except ValueError as e:
+            raise e
+        return {ITEM_FIELD.CREATED_TIME: value}
 
     @staticmethod
     def SET_ENTITY_TYPE_ID(value: int) -> dict[str, int]:
@@ -123,19 +147,33 @@ class Item(BaseBitrixObject):
 
     @staticmethod
     def SET_USE_ORIGINAL_UF_NAMES(value: bool) -> dict[str, str]:
-        return 'Y' if value else 'N'
+        return "Y" if value else "N"
 
     @classmethod
-    def get(cls, type_id: int, id: int, use_original_uf_names: bool = False) -> dto.SelectGetItemData:
+    def get(
+        cls, type_id: int, id: int, use_original_uf_names: bool = False
+    ) -> dto.SelectGetItemData:
         data = super().get(id=id)
-        original_names = 'Y' if use_original_uf_names else 'F'
-        return dto.SelectGetItemData(entityTypeId=type_id, **data.__dict__, useOriginalUfNames=original_names)
+        original_names = "Y" if use_original_uf_names else "F"
+        return dto.SelectGetItemData(
+            entityTypeId=type_id, **data.__dict__, useOriginalUfNames=original_names
+        )
 
     @classmethod
-    def get_list(cls, type_id: int, select=None, filter=None, use_original_uf_names: bool = False, order=None, start=0) -> dto.SelectListItemData:
+    def get_list(
+        cls,
+        type_id: int,
+        select=None,
+        filter=None,
+        use_original_uf_names: bool = False,
+        order=None,
+        start=0,
+    ) -> dto.SelectListItemData:
         data = super().get_list(select, filter, order, start)
-        original_names = 'Y' if use_original_uf_names else 'F'
-        return dto.SelectListItemData(entityTypeId=type_id, **data.__dict__, useOriginalUfNames=original_names)
+        original_names = "Y" if use_original_uf_names else "F"
+        return dto.SelectListItemData(
+            entityTypeId=type_id, **data.__dict__, useOriginalUfNames=original_names
+        )
 
     @classmethod
     def create(cls, type_id: int, fields) -> dto.AddItemData:
@@ -165,6 +203,7 @@ class Deal[T](BaseBitrixObject):
     suitable for use in Bitrix24 API requests. This class helps to build query parameters in a consistent
     and type-safe way, reducing errors and improving code readability.
     """
+
     NAME_OBJECT_ACTION = BitrixCRMTypes.DEAL.value
     REGISTER_SONET_EVENT_OPTION = True
     IMPORT_OPTION = False
@@ -213,7 +252,7 @@ class Deal[T](BaseBitrixObject):
     LAST_ACTIVITY_BY = DEAL_FIELD.LAST_ACTIVITY_BY
     LAST_ACTIVITY_TIME = DEAL_FIELD.LAST_ACTIVITY_TIME
 
-    root = 'crm.{}.{}'
+    root = "crm.{}.{}"
 
     @staticmethod
     def SET_ID(value: int) -> dict[str, int]:
@@ -248,7 +287,7 @@ class Deal[T](BaseBitrixObject):
     @staticmethod
     def SET_IS_MANUAL_OPPORTUNITY(value: bool) -> dict[str, str]:
         """Indicates if the opportunity is set manually. Accepts 'Y' or 'N'."""
-        return {DEAL_FIELD.IS_MANUAL_OPPORTUNITY: 'Y' if value else 'N'}
+        return {DEAL_FIELD.IS_MANUAL_OPPORTUNITY: "Y" if value else "N"}
 
     @staticmethod
     def SET_ASSIGNED_BY_ID(value: T | list[T]) -> dict[str, T, list[T]]:
@@ -266,8 +305,7 @@ class Deal[T](BaseBitrixObject):
         try:
             if not isinstance(value, (datetime, str)):
                 raise ValueError(
-                    LogicErrors.WRONG_TYPE_PARAMETER.format(
-                        value.__class__.__name__)
+                    LogicErrors.WRONG_TYPE_PARAMETER.format(value.__class__.__name__)
                 )
             if isinstance(value, str):
                 value = datetime.fromisoformat(value)
@@ -281,8 +319,7 @@ class Deal[T](BaseBitrixObject):
         try:
             if not isinstance(value, (datetime, str)):
                 raise ValueError(
-                    LogicErrors.WRONG_TYPE_PARAMETER.format(
-                        value.__class__.__name__)
+                    LogicErrors.WRONG_TYPE_PARAMETER.format(value.__class__.__name__)
                 )
             if isinstance(value, str):
                 value = datetime.fromisoformat(value)
@@ -328,12 +365,12 @@ class Deal[T](BaseBitrixObject):
     @staticmethod
     def SET_OPENED(value: bool) -> dict[str, str]:
         """Indicates if the deal is available to all users ('Y' or 'N')."""
-        return {DEAL_FIELD.OPENED: 'Y' if value else 'N'}
+        return {DEAL_FIELD.OPENED: "Y" if value else "N"}
 
     @staticmethod
     def SET_IS_RECURRING(value: bool) -> dict[str, str]:
         """Indicates if the deal is recurring ('Y' or 'N')."""
-        return {DEAL_FIELD.IS_RECURRING: 'Y' if value else 'N'}
+        return {DEAL_FIELD.IS_RECURRING: "Y" if value else "N"}
 
     @staticmethod
     def SET_ORIGINATOR_ID(value: str) -> dict[str, str]:
@@ -378,7 +415,7 @@ class Deal[T](BaseBitrixObject):
     @staticmethod
     def SET_IS_RETURN_CUSTOMER(value: bool) -> dict[str, str]:
         """Indicates if the deal is for a returning customer (`Y` or `N`)."""
-        return {DEAL_FIELD.IS_RETURN_CUSTOMER: 'Y' if value else 'N'}
+        return {DEAL_FIELD.IS_RETURN_CUSTOMER: "Y" if value else "N"}
 
     @staticmethod
     def SET_CONTACT_IDS(value: list[int]) -> dict[str, list[int]]:
@@ -393,7 +430,7 @@ class Deal[T](BaseBitrixObject):
     @staticmethod
     def SET_CLOSED(value: bool) -> dict[str, str]:
         """Indicates if the deal is closed (`Y` or `N`)."""
-        return {DEAL_FIELD.CLOSED: 'Y' if value else 'N'}
+        return {DEAL_FIELD.CLOSED: "Y" if value else "N"}
 
     @staticmethod
     def SET_ADDITIONAL_INFO(value: str) -> dict[str, str]:
@@ -408,7 +445,7 @@ class Deal[T](BaseBitrixObject):
     @staticmethod
     def SET_IS_REPEATED_APPROACH(value: bool) -> dict[str, str]:
         """Indicates if the deal is a repeated approach (`Y` or `N`)."""
-        return {DEAL_FIELD.IS_REPEATED_APPROACH: 'Y' if value else 'N'}
+        return {DEAL_FIELD.IS_REPEATED_APPROACH: "Y" if value else "N"}
 
     @staticmethod
     def SET_LAST_ACTIVITY_BY(value: int) -> dict[str, int]:
@@ -419,8 +456,7 @@ class Deal[T](BaseBitrixObject):
         try:
             if not isinstance(value, (datetime, str)):
                 raise ValueError(
-                    LogicErrors.WRONG_TYPE_PARAMETER.format(
-                        value.__class__.__name__)
+                    LogicErrors.WRONG_TYPE_PARAMETER.format(value.__class__.__name__)
                 )
             if isinstance(value, str):
                 value = datetime.fromisoformat(value)
@@ -436,7 +472,7 @@ class Deal[T](BaseBitrixObject):
     @staticmethod
     def SET_PARENT_ID(value: int) -> dict[str, int]:
         value = str(value)
-        return {f'PARENT_ID_ + {value}': int(value)}
+        return {f"PARENT_ID_ + {value}": int(value)}
 
 
 class Contact(BaseBitrixObject):
@@ -446,6 +482,7 @@ class Contact(BaseBitrixObject):
     class and returns a string representation suitable for use in Bitrix24 API
     requests.
     """
+
     NAME_OBJECT_ACTION = BitrixCRMTypes.CONTACT.value
     REGISTER_SONET_EVENT_OPTION = True
     IMPORT_OPTION = True
@@ -479,7 +516,7 @@ class Contact(BaseBitrixObject):
     IM = CONTACT_FIELD.IM
     LINK = CONTACT_FIELD.LINK
 
-    root = 'crm.{}.{}'
+    root = "crm.{}.{}"
 
     @staticmethod
     def SET_ID(value: int) -> dict[str, int]:
@@ -517,8 +554,7 @@ class Contact(BaseBitrixObject):
         try:
             if not isinstance(value, (datetime, str)):
                 raise ValueError(
-                    LogicErrors.WRONG_TYPE_PARAMETER.format(
-                        value.__class__.__name__)
+                    LogicErrors.WRONG_TYPE_PARAMETER.format(value.__class__.__name__)
                 )
             if isinstance(value, str):
                 value = datetime.fromisoformat(value)
@@ -554,12 +590,12 @@ class Contact(BaseBitrixObject):
     @staticmethod
     def SET_OPENED(value: bool) -> dict[str, str]:
         """Is contact available to all users (`Y` or `N`)."""
-        return {CONTACT_FIELD.OPENED: 'Y' if value else 'N'}
+        return {CONTACT_FIELD.OPENED: "Y" if value else "N"}
 
     @staticmethod
     def SET_EXPORT(value: bool) -> dict[str, str]:
         """Is contact available for export (`Y` or `N`)."""
-        return {CONTACT_FIELD.EXPORT: 'Y' if value else 'N'}
+        return {CONTACT_FIELD.EXPORT: "Y" if value else "N"}
 
     @staticmethod
     def SET_ASSIGNED_BY_ID(value: int) -> dict[str, int]:
@@ -582,7 +618,7 @@ class Contact(BaseBitrixObject):
         return {CONTACT_FIELD.UTM_SOURCE: str(value)}
 
     @staticmethod
-    def SET_UTM_MEDIUM(value: Literal['CPC', 'CPM']) -> dict[str, str]:
+    def SET_UTM_MEDIUM(value: Literal["CPC", "CPM"]) -> dict[str, str]:
         """UTM medium for contact."""
         return {CONTACT_FIELD.UTM_MEDIUM: str(value)}
 
@@ -697,11 +733,11 @@ class Lead(BaseBitrixObject):
     IM = LEAD_FIELD.IM
     LINK = LEAD_FIELD.LINK
 
-    root = 'crm.{}.{}'
+    root = "crm.{}.{}"
 
-    # @staticmethod
-    # def SET_ID(value: int) -> dict[str, int]:
-    #     return {LEAD_FIELD.ID: value}
+    @staticmethod
+    def SET_ID(value: int) -> dict[str, int]:
+        return {LEAD_FIELD.ID: value}
 
     @staticmethod
     def SET_TITLE(value: str) -> dict[str, str]:
@@ -749,9 +785,9 @@ class Lead(BaseBitrixObject):
     def SET_STATUS_DESCRIPTION(value: str) -> dict[str, str]:
         return {LEAD_FIELD.STATUS_DESCRIPTION: value}
 
-    # @staticmethod
-    # def SET_STATUS_SEMANTIC_ID(value: str) -> dict[str, str]:
-    # 	return {LEAD_FIELD.STATUS_SEMANTIC_ID: value}
+    @staticmethod
+    def SET_STATUS_SEMANTIC_ID(value: str) -> dict[str, str]:
+        return {LEAD_FIELD.STATUS_SEMANTIC_ID: value}
 
     @staticmethod
     def SET_POST(value: str) -> dict[str, str]:
@@ -803,61 +839,61 @@ class Lead(BaseBitrixObject):
 
     @staticmethod
     def SET_IS_MANUAL_OPPORTUNITY(value: bool) -> dict[str, str]:
-        return {LEAD_FIELD.IS_MANUAL_OPPORTUNITY: 'Y' if value else 'N'}
+        return {LEAD_FIELD.IS_MANUAL_OPPORTUNITY: "Y" if value else "N"}
 
     @staticmethod
     def SET_OPENED(value: bool) -> dict[str, str]:
-        return {LEAD_FIELD.OPENED: 'Y' if value else 'N'}
+        return {LEAD_FIELD.OPENED: "Y" if value else "N"}
 
     @staticmethod
     def SET_COMMENTS(value: str) -> dict[str, str]:
         return {LEAD_FIELD.COMMENTS: value}
 
-    # @staticmethod
-    # def SET_HAS_PHONE(value: bool) -> dict[str, str]:
-    #     return {LEAD_FIELD.HAS_PHONE: 'Y' if value else 'N'}
-    #
-    # @staticmethod
-    # def SET_HAS_EMAIL(value: bool) -> dict[str, str]:
-    #     return {LEAD_FIELD.HAS_EMAIL: 'Y' if value else 'N'}
-    #
-    # @staticmethod
-    # def SET_HAS_IMOL(value: bool) -> dict[str, str]:
-    #     return {LEAD_FIELD.HAS_IMOL: 'Y' if value else 'N'}
+    @staticmethod
+    def SET_HAS_PHONE(value: bool) -> dict[str, str]:
+        return {LEAD_FIELD.HAS_PHONE: "Y" if value else "N"}
+
+    @staticmethod
+    def SET_HAS_EMAIL(value: bool) -> dict[str, str]:
+        return {LEAD_FIELD.HAS_EMAIL: "Y" if value else "N"}
+
+    @staticmethod
+    def SET_HAS_IMOL(value: bool) -> dict[str, str]:
+        return {LEAD_FIELD.HAS_IMOL: "Y" if value else "N"}
 
     @staticmethod
     def SET_ASSIGNED_BY_ID(value: int) -> dict[str, int]:
         return {LEAD_FIELD.ASSIGNED_BY_ID: value}
 
-    # @staticmethod
-    # def SET_CREATED_BY_ID(value: int) -> dict[str, int]:
-    # 	return {LEAD_FIELD.CREATED_BY_ID: value}
+    @staticmethod
+    def SET_CREATED_BY_ID(value: int) -> dict[str, int]:
+        return {LEAD_FIELD.CREATED_BY_ID: value}
 
-    # @staticmethod
-    # def SET_MODIFY_BY_ID(value: int) -> dict[str, int]:
-    # 	return {LEAD_FIELD.MODIFY_BY_ID: value}
+    @staticmethod
+    def SET_MODIFY_BY_ID(value: int) -> dict[str, int]:
+        return {LEAD_FIELD.MODIFY_BY_ID: value}
 
-    # @staticmethod
-    # def SET_MOVED_BY_ID(value: int) -> dict[str, int]:
-    # 	return {LEAD_FIELD.MOVED_BY_ID: value}
+    @staticmethod
+    def SET_MOVED_BY_ID(value: int) -> dict[str, int]:
+        return {LEAD_FIELD.MOVED_BY_ID: value}
 
-    # @staticmethod
-    # def SET_DATE_CREATE(value: datetime | str) -> dict[str, str]:
-    # 	if isinstance(value, str):
-    # 		value = datetime.fromisoformat(value)
-    # 	return {LEAD_FIELD.DATE_CREATE: value.isoformat()}
+    @staticmethod
+    def SET_DATE_CREATE(value: datetime | str) -> dict[str, str]:
+        if isinstance(value, str):
+            value = datetime.fromisoformat(value)
+        return {LEAD_FIELD.DATE_CREATE: value.isoformat()}
 
-    # @staticmethod
-    # def SET_DATE_MODIFY(value: datetime | str) -> dict[str, str]:
-    # 	if isinstance(value, str):
-    # 		value = datetime.fromisoformat(value)
-    # 	return {LEAD_FIELD.DATE_MODIFY: value.isoformat()}
+    @staticmethod
+    def SET_DATE_MODIFY(value: datetime | str) -> dict[str, str]:
+        if isinstance(value, str):
+            value = datetime.fromisoformat(value)
+        return {LEAD_FIELD.DATE_MODIFY: value.isoformat()}
 
-    # @staticmethod
-    # def SET_MOVED_TIME(value: datetime | str) -> dict[str, str]:
-    # 	if isinstance(value, str):
-    # 		value = datetime.fromisoformat(value)
-    # 	return {LEAD_FIELD.MOVED_TIME: value.isoformat()}
+    @staticmethod
+    def SET_MOVED_TIME(value: datetime | str) -> dict[str, str]:
+        if isinstance(value, str):
+            value = datetime.fromisoformat(value)
+        return {LEAD_FIELD.MOVED_TIME: value.isoformat()}
 
     @staticmethod
     def SET_COMPANY_ID(value: int) -> dict[str, int]:
@@ -871,15 +907,15 @@ class Lead(BaseBitrixObject):
     def SET_CONTACT_IDS(value: list[int]) -> dict[str, list[int]]:
         return {LEAD_FIELD.CONTACT_IDS: value}
 
-    # @staticmethod
-    # def SET_IS_RETURN_CUSTOMER(value: bool) -> dict[str, str]:
-    # 	return {LEAD_FIELD.IS_RETURN_CUSTOMER: 'Y' if value else 'N'}
-    #
-    # @staticmethod
-    # def SET_DATE_CLOSED(value: datetime | str) -> dict[str, str]:
-    # 	if isinstance(value, str):
-    # 		value = datetime.fromisoformat(value)
-    # 	return {LEAD_FIELD.DATE_CLOSED: value.isoformat()}
+    @staticmethod
+    def SET_IS_RETURN_CUSTOMER(value: bool) -> dict[str, str]:
+    	return {LEAD_FIELD.IS_RETURN_CUSTOMER: 'Y' if value else 'N'}
+
+    @staticmethod
+    def SET_DATE_CLOSED(value: datetime | str) -> dict[str, str]:
+    	if isinstance(value, str):
+    		value = datetime.fromisoformat(value)
+    	return {LEAD_FIELD.DATE_CLOSED: value.isoformat()}
 
     @staticmethod
     def SET_ORIGINATOR_ID(value: str) -> dict[str, str]:
@@ -909,15 +945,15 @@ class Lead(BaseBitrixObject):
     def SET_UTM_TERM(value: str) -> dict[str, str]:
         return {LEAD_FIELD.UTM_TERM: value}
 
-    # @staticmethod
-    # def SET_LAST_ACTIVITY_TIME(value: datetime | str) -> dict[str, str]:
-    # 	if isinstance(value, str):
-    # 		value = datetime.fromisoformat(value)
-    # 	return {LEAD_FIELD.LAST_ACTIVITY_TIME: value.isoformat()}
-    #
-    # @staticmethod
-    # def SET_LAST_ACTIVITY_BY(value: str) -> dict[str, str]:
-    # 	return {LEAD_FIELD.LAST_ACTIVITY_BY: value}
+    @staticmethod
+    def SET_LAST_ACTIVITY_TIME(value: datetime | str) -> dict[str, str]:
+    	if isinstance(value, str):
+    		value = datetime.fromisoformat(value)
+    	return {LEAD_FIELD.LAST_ACTIVITY_TIME: value.isoformat()}
+
+    @staticmethod
+    def SET_LAST_ACTIVITY_BY(value: str) -> dict[str, str]:
+    	return {LEAD_FIELD.LAST_ACTIVITY_BY: value}
 
     # Множественные поля
     @staticmethod
@@ -942,11 +978,11 @@ class Lead(BaseBitrixObject):
 
     @staticmethod
     def SET_UF(key: str, value: Any) -> dict[str, Any]:
-        return {f'UF_CRM_{key}': value}
+        return {f"UF_CRM_{key}": value}
 
     @staticmethod
     def SET_PARENT_ID(field_name: str, value: int) -> dict[str, int]:
-        return {f'PARENT_ID_{field_name}': value}
+        return {f"PARENT_ID_{field_name}": value}
 
 
 class Company(BaseBitrixObject):
@@ -1002,240 +1038,240 @@ class Company(BaseBitrixObject):
     IM = COMPANY_FIELD.IM
     LINK = COMPANY_FIELD.LINK
 
-    root = 'crm.{}.{}'
+    root = "crm.{}.{}"
 
-    # @staticmethod
-    # def SET_ID(value: int) -> dict[str, int]:
-    #     return {'ID': value}
+    @staticmethod
+    def SET_ID(value: int) -> dict[str, int]:
+        return {'ID': value}
 
     @staticmethod
     def SET_TITLE(value: str) -> dict[str, str]:
-        return {'TITLE': value}
+        return {"TITLE": value}
 
     @staticmethod
     def SET_COMPANY_TYPE(value: str) -> dict[str, str]:
-        return {'COMPANY_TYPE': value}
+        return {"COMPANY_TYPE": value}
 
     @staticmethod
     def SET_LOGO(value: str) -> dict[str, str]:
-        return {'LOGO': value}
+        return {"LOGO": value}
 
     @staticmethod
     def SET_ADDRESS(value: str) -> dict[str, str]:
-        return {'ADDRESS': value}
+        return {"ADDRESS": value}
 
     @staticmethod
     def SET_ADDRESS_2(value: str) -> dict[str, str]:
-        return {'ADDRESS_2': value}
+        return {"ADDRESS_2": value}
 
     @staticmethod
     def SET_ADDRESS_CITY(value: str) -> dict[str, str]:
-        return {'ADDRESS_CITY': value}
+        return {"ADDRESS_CITY": value}
 
     @staticmethod
     def SET_ADDRESS_POSTAL_CODE(value: str) -> dict[str, str]:
-        return {'ADDRESS_POSTAL_CODE': value}
+        return {"ADDRESS_POSTAL_CODE": value}
 
     @staticmethod
     def SET_ADDRESS_REGION(value: str) -> dict[str, str]:
-        return {'ADDRESS_REGION': value}
+        return {"ADDRESS_REGION": value}
 
     @staticmethod
     def SET_ADDRESS_PROVINCE(value: str) -> dict[str, str]:
-        return {'ADDRESS_PROVINCE': value}
+        return {"ADDRESS_PROVINCE": value}
 
     @staticmethod
     def SET_ADDRESS_COUNTRY(value: str) -> dict[str, str]:
-        return {'ADDRESS_COUNTRY': value}
+        return {"ADDRESS_COUNTRY": value}
 
     @staticmethod
     def SET_ADDRESS_COUNTRY_CODE(value: str) -> dict[str, str]:
-        return {'ADDRESS_COUNTRY_CODE': value}
+        return {"ADDRESS_COUNTRY_CODE": value}
 
     @staticmethod
     def SET_ADDRESS_LOC_ADDR_ID(value: int) -> dict[str, int]:
-        return {'ADDRESS_LOC_ADDR_ID': value}
+        return {"ADDRESS_LOC_ADDR_ID": value}
 
     @staticmethod
     def SET_ADDRESS_LEGAL(value: str) -> dict[str, str]:
-        return {'ADDRESS_LEGAL': value}
+        return {"ADDRESS_LEGAL": value}
 
     @staticmethod
     def SET_REG_ADDRESS(value: str) -> dict[str, str]:
-        return {'REG_ADDRESS': value}
+        return {"REG_ADDRESS": value}
 
     @staticmethod
     def SET_REG_ADDRESS_2(value: str) -> dict[str, str]:
-        return {'REG_ADDRESS_2': value}
+        return {"REG_ADDRESS_2": value}
 
     @staticmethod
     def SET_REG_ADDRESS_CITY(value: str) -> dict[str, str]:
-        return {'REG_ADDRESS_CITY': value}
+        return {"REG_ADDRESS_CITY": value}
 
     @staticmethod
     def SET_REG_ADDRESS_POSTAL_CODE(value: str) -> dict[str, str]:
-        return {'REG_ADDRESS_POSTAL_CODE': value}
+        return {"REG_ADDRESS_POSTAL_CODE": value}
 
     @staticmethod
     def SET_REG_ADDRESS_REGION(value: str) -> dict[str, str]:
-        return {'REG_ADDRESS_REGION': value}
+        return {"REG_ADDRESS_REGION": value}
 
     @staticmethod
     def SET_REG_ADDRESS_PROVINCE(value: str) -> dict[str, str]:
-        return {'REG_ADDRESS_PROVINCE': value}
+        return {"REG_ADDRESS_PROVINCE": value}
 
     @staticmethod
     def SET_REG_ADDRESS_COUNTRY(value: str) -> dict[str, str]:
-        return {'REG_ADDRESS_COUNTRY': value}
+        return {"REG_ADDRESS_COUNTRY": value}
 
     @staticmethod
     def SET_REG_ADDRESS_COUNTRY_CODE(value: str) -> dict[str, str]:
-        return {'REG_ADDRESS_COUNTRY_CODE': value}
+        return {"REG_ADDRESS_COUNTRY_CODE": value}
 
     @staticmethod
     def SET_REG_ADDRESS_LOC_ADDR_ID(value: int) -> dict[str, int]:
-        return {'REG_ADDRESS_LOC_ADDR_ID': value}
+        return {"REG_ADDRESS_LOC_ADDR_ID": value}
 
     @staticmethod
     def SET_BANKING_DETAILS(value: str) -> dict[str, str]:
-        return {'BANKING_DETAILS': value}
+        return {"BANKING_DETAILS": value}
 
     @staticmethod
     def SET_INDUSTRY(value: str) -> dict[str, str]:
-        return {'INDUSTRY': value}
+        return {"INDUSTRY": value}
 
     @staticmethod
     def SET_EMPLOYEES(value: str) -> dict[str, str]:
-        return {'EMPLOYEES': value}
+        return {"EMPLOYEES": value}
 
     @staticmethod
     def SET_CURRENCY_ID(value: str) -> dict[str, str]:
-        return {'CURRENCY_ID': value}
+        return {"CURRENCY_ID": value}
 
     @staticmethod
     def SET_REVENUE(value: float) -> dict[str, float]:
-        return {'REVENUE': value}
+        return {"REVENUE": value}
 
     @staticmethod
     def SET_OPENED(value: str) -> dict[str, str]:
-        return {'OPENED': value}
+        return {"OPENED": value}
 
     @staticmethod
     def SET_COMMENTS(value: str) -> dict[str, str]:
-        return {'COMMENTS': value}
+        return {"COMMENTS": value}
 
-    # @staticmethod
-    # def SET_HAS_PHONE(value: str) -> dict[str, str]:
-    #     return {'HAS_PHONE': value}
-    #
-    # @staticmethod
-    # def SET_HAS_EMAIL(value: str) -> dict[str, str]:
-    #     return {'HAS_EMAIL': value}
-    #
-    # @staticmethod
-    # def SET_HAS_IMOL(value: str) -> dict[str, str]:
-    #     return {'HAS_IMOL': value}
+    @staticmethod
+    def SET_HAS_PHONE(value: str) -> dict[str, str]:
+        return {'HAS_PHONE': value}
+
+    @staticmethod
+    def SET_HAS_EMAIL(value: str) -> dict[str, str]:
+        return {'HAS_EMAIL': value}
+
+    @staticmethod
+    def SET_HAS_IMOL(value: str) -> dict[str, str]:
+        return {'HAS_IMOL': value}
 
     @staticmethod
     def SET_IS_MY_COMPANY(value: str) -> dict[str, str]:
-        return {'IS_MY_COMPANY': value}
+        return {"IS_MY_COMPANY": value}
 
     @staticmethod
     def SET_ASSIGNED_BY_ID(value: int) -> dict[str, int]:
-        return {'ASSIGNED_BY_ID': value}
+        return {"ASSIGNED_BY_ID": value}
 
-    # @staticmethod
-    # def SET_CREATED_BY_ID(value: int) -> dict[str, int]:
-    # 	return {'CREATED_BY_ID': value}
-    #
-    # @staticmethod
-    # def SET_MODIFY_BY_ID(value: int) -> dict[str, int]:
-    # 	return {'MODIFY_BY_ID': value}
-    #
-    # @staticmethod
-    # def SET_DATE_CREATE(value: str) -> dict[str, str]:
-    # 	return {'DATE_CREATE': value}
-    #
-    # @staticmethod
-    # def SET_DATE_MODIFY(value: str) -> dict[str, str]:
-    # 	return {'DATE_MODIFY': value}
+    @staticmethod
+    def SET_CREATED_BY_ID(value: int) -> dict[str, int]:
+    	return {'CREATED_BY_ID': value}
+
+    @staticmethod
+    def SET_MODIFY_BY_ID(value: int) -> dict[str, int]:
+    	return {'MODIFY_BY_ID': value}
+
+    @staticmethod
+    def SET_DATE_CREATE(value: str) -> dict[str, str]:
+    	return {'DATE_CREATE': value}
+
+    @staticmethod
+    def SET_DATE_MODIFY(value: str) -> dict[str, str]:
+    	return {'DATE_MODIFY': value}
 
     @staticmethod
     def SET_CONTACT_ID(value: str) -> dict[str, str]:
-        return {'CONTACT_ID': value}
+        return {"CONTACT_ID": value}
 
-    # @staticmethod
-    # def SET_LEAD_ID(value: int) -> dict[str, int]:
-    # 	return {'LEAD_ID': value}
+    @staticmethod
+    def SET_LEAD_ID(value: int) -> dict[str, int]:
+    	return {'LEAD_ID': value}
 
     @staticmethod
     def SET_ORIGINATOR_ID(value: str) -> dict[str, str]:
-        return {'ORIGINATOR_ID': value}
+        return {"ORIGINATOR_ID": value}
 
     @staticmethod
     def SET_ORIGIN_ID(value: str) -> dict[str, str]:
-        return {'ORIGIN_ID': value}
+        return {"ORIGIN_ID": value}
 
     @staticmethod
     def SET_ORIGIN_VERSION(value: str) -> dict[str, str]:
-        return {'ORIGIN_VERSION': value}
+        return {"ORIGIN_VERSION": value}
 
     @staticmethod
     def SET_UTM_SOURCE(value: str) -> dict[str, str]:
-        return {'UTM_SOURCE': value}
+        return {"UTM_SOURCE": value}
 
     @staticmethod
     def SET_UTM_MEDIUM(value: str) -> dict[str, str]:
-        return {'UTM_MEDIUM': value}
+        return {"UTM_MEDIUM": value}
 
     @staticmethod
     def SET_UTM_CAMPAIGN(value: str) -> dict[str, str]:
-        return {'UTM_CAMPAIGN': value}
+        return {"UTM_CAMPAIGN": value}
 
     @staticmethod
     def SET_UTM_CONTENT(value: str) -> dict[str, str]:
-        return {'UTM_CONTENT': value}
+        return {"UTM_CONTENT": value}
 
     @staticmethod
     def SET_UTM_TERM(value: str) -> dict[str, str]:
-        return {'UTM_TERM': value}
+        return {"UTM_TERM": value}
 
     @staticmethod
     def SET_PARENT_ID(value: int) -> dict[str, int]:
-        return {'PARENT_ID_xxx': value}
+        return {"PARENT_ID_xxx": value}
 
-    # @staticmethod
-    # def SET_LAST_ACTIVITY_TIME(value: str) -> dict[str, str]:
-    # 	return {'LAST_ACTIVITY_TIME': value}
-    #
-    # @staticmethod
-    # def SET_LAST_ACTIVITY_BY(value: str) -> dict[str, str]:
-    # 	return {'LAST_ACTIVITY_BY': value}
+    @staticmethod
+    def SET_LAST_ACTIVITY_TIME(value: str) -> dict[str, str]:
+    	return {'LAST_ACTIVITY_TIME': value}
+
+    @staticmethod
+    def SET_LAST_ACTIVITY_BY(value: str) -> dict[str, str]:
+    	return {'LAST_ACTIVITY_BY': value}
 
     @staticmethod
     def SET_PHONE(value: list[dict]) -> dict[str, list[dict]]:
-        return {'PHONE': value}
+        return {"PHONE": value}
 
     @staticmethod
     def SET_EMAIL(value: list[dict]) -> dict[str, list[dict]]:
-        return {'EMAIL': value}
+        return {"EMAIL": value}
 
     @staticmethod
     def SET_WEB(value: list[dict]) -> dict[str, list[dict]]:
-        return {'WEB': value}
+        return {"WEB": value}
 
     @staticmethod
     def SET_IM(value: list[dict]) -> dict[str, list[dict]]:
-        return {'IM': value}
+        return {"IM": value}
 
     @staticmethod
     def SET_LINK(value: list[dict]) -> dict[str, list[dict]]:
-        return {'LINK': value}
+        return {"LINK": value}
 
 
 class Requisite(BaseBitrixObject):
-    """
-    """
+    """ """
+
     NAME_OBJECT_ACTION = BitrixCRMTypes.REQUISITE.value
     REGISTER_SONET_EVENT_OPTION = True
     IMPORT_OPTION = True
@@ -1317,11 +1353,11 @@ class Requisite(BaseBitrixObject):
     RQ_CPF = REQUISITE_FIELD.RQ_CPF
     UF_CRM = REQUISITE_FIELD.UF_CRM
 
-    root = 'crm.{}.{}'
+    root = "crm.{}.{}"
 
-    # @staticmethod
-    # def SET_ID(value: int) -> dict[str, int]:
-    #     return {REQUISITE_FIELD.ID: int(value)}
+    @staticmethod
+    def SET_ID(value: int) -> dict[str, int]:
+        return {REQUISITE_FIELD.ID: int(value)}
 
     @staticmethod
     def SET_ENTITY_TYPE_ID(value: int) -> dict[str, int]:
@@ -1335,25 +1371,25 @@ class Requisite(BaseBitrixObject):
     def SET_PRESET_ID(value: int) -> dict[str, int]:
         return {REQUISITE_FIELD.PRESET_ID: int(value)}
 
-    # @staticmethod
-    # def SET_DATE_CREATE(value: datetime | str) -> dict[str, str]:
-    #     if isinstance(value, datetime):
-    #         value = value.isoformat()
-    #     return {REQUISITE_FIELD.DATE_CREATE: str(value)}
-    #
-    # @staticmethod
-    # def SET_DATE_MODIFY(value: datetime | str) -> dict[str, str]:
-    #     if isinstance(value, datetime):
-    #         value = value.isoformat()
-    #     return {REQUISITE_FIELD.DATE_MODIFY: str(value)}
-    #
-    # @staticmethod
-    # def SET_CREATED_BY_ID(value: int) -> dict[str, int]:
-    #     return {REQUISITE_FIELD.CREATED_BY_ID: int(value)}
-    #
-    # @staticmethod
-    # def SET_MODIFY_BY_ID(value: int) -> dict[str, int]:
-    #     return {REQUISITE_FIELD.MODIFY_BY_ID: int(value)}
+    @staticmethod
+    def SET_DATE_CREATE(value: datetime | str) -> dict[str, str]:
+        if isinstance(value, datetime):
+            value = value.isoformat()
+        return {REQUISITE_FIELD.DATE_CREATE: str(value)}
+
+    @staticmethod
+    def SET_DATE_MODIFY(value: datetime | str) -> dict[str, str]:
+        if isinstance(value, datetime):
+            value = value.isoformat()
+        return {REQUISITE_FIELD.DATE_MODIFY: str(value)}
+
+    @staticmethod
+    def SET_CREATED_BY_ID(value: int) -> dict[str, int]:
+        return {REQUISITE_FIELD.CREATED_BY_ID: int(value)}
+
+    @staticmethod
+    def SET_MODIFY_BY_ID(value: int) -> dict[str, int]:
+        return {REQUISITE_FIELD.MODIFY_BY_ID: int(value)}
 
     @staticmethod
     def SET_NAME(value: str) -> dict[str, str]:
@@ -1373,11 +1409,11 @@ class Requisite(BaseBitrixObject):
 
     @staticmethod
     def SET_ACTIVE(value: bool) -> dict[str, str]:
-        return {REQUISITE_FIELD.ACTIVE: 'Y' if value else 'N'}
+        return {REQUISITE_FIELD.ACTIVE: "Y" if value else "N"}
 
     @staticmethod
     def SET_ADDRESS_ONLY(value: bool) -> dict[str, str]:
-        return {REQUISITE_FIELD.ADDRESS_ONLY: 'Y' if value else 'N'}
+        return {REQUISITE_FIELD.ADDRESS_ONLY: "Y" if value else "N"}
 
     @staticmethod
     def SET_SORT(value: int) -> dict[str, int]:
@@ -1556,7 +1592,7 @@ class Requisite(BaseBitrixObject):
 
     @staticmethod
     def SET_RQ_VAT_PAYER(value: bool) -> dict[str, str]:
-        return {REQUISITE_FIELD.RQ_VAT_PAYER: 'Y' if value else 'N'}
+        return {REQUISITE_FIELD.RQ_VAT_PAYER: "Y" if value else "N"}
 
     @staticmethod
     def SET_RQ_VAT_ID(value: str) -> dict[str, str]:
@@ -1638,8 +1674,7 @@ class Requisite(BaseBitrixObject):
 
 
 class Activity(BaseBitrixObject):
-    """
-    """
+    """ """
 
     NAME_OBJECT_ACTION = BitrixCRMTypes.ACTIVITY.value
     REGISTER_SONET_EVENT_OPTION = True
@@ -1690,12 +1725,12 @@ class Activity(BaseBitrixObject):
     WEBDAV_ELEMENTS = ACTIVITY_FIELD.WEBDAV_ELEMENTS
     IS_INCOMING_CHANNEL = ACTIVITY_FIELD.IS_INCOMING_CHANNEL
 
-    root = 'crm.{}.{}'
+    root = "crm.{}.{}"
 
-    # @staticmethod
-    # def SET_ID(value: int) -> dict[str, int]:
-    #     """Unique activity ID (read-only)."""
-    #     return {ACTIVITY_FIELD.ID: int(value)}
+    @staticmethod
+    def SET_ID(value: int) -> dict[str, int]:
+        """Unique activity ID (read-only)."""
+        return {ACTIVITY_FIELD.ID: int(value)}
 
     @staticmethod
     def SET_OWNER_ID(value: int) -> dict[str, int]:
@@ -1727,10 +1762,10 @@ class Activity(BaseBitrixObject):
         """Provider group / connector type."""
         return {ACTIVITY_FIELD.PROVIDER_GROUP_ID: str(value)}
 
-    # @staticmethod
-    # def SET_ASSOCIATED_ENTITY_ID(value: int) -> dict[str, int]:
-    #     """ID of entity associated with activity."""
-    #     return {ACTIVITY_FIELD.ASSOCIATED_ENTITY_ID: int(value)}
+    @staticmethod
+    def SET_ASSOCIATED_ENTITY_ID(value: int) -> dict[str, int]:
+        """ID of entity associated with activity."""
+        return {ACTIVITY_FIELD.ASSOCIATED_ENTITY_ID: int(value)}
 
     @staticmethod
     def SET_SUBJECT(value: str) -> dict[str, str]:
@@ -1740,22 +1775,34 @@ class Activity(BaseBitrixObject):
     @staticmethod
     def SET_START_TIME(value: datetime | str) -> dict[str, str]:
         """Start time of activity (datetime or ISO string)."""
-        return {ACTIVITY_FIELD.START_TIME: value if isinstance(value, str) else value.isoformat()}
+        return {
+            ACTIVITY_FIELD.START_TIME: (
+                value if isinstance(value, str) else value.isoformat()
+            )
+        }
 
     @staticmethod
     def SET_END_TIME(value: datetime | str) -> dict[str, str]:
         """End time of activity (datetime or ISO string)."""
-        return {ACTIVITY_FIELD.END_TIME: value if isinstance(value, str) else value.isoformat()}
+        return {
+            ACTIVITY_FIELD.END_TIME: (
+                value if isinstance(value, str) else value.isoformat()
+            )
+        }
 
     @staticmethod
     def SET_DEADLINE(value: datetime | str) -> dict[str, str]:
         """Deadline for activity."""
-        return {ACTIVITY_FIELD.DEADLINE: value if isinstance(value, str) else value.isoformat()}
+        return {
+            ACTIVITY_FIELD.DEADLINE: (
+                value if isinstance(value, str) else value.isoformat()
+            )
+        }
 
     @staticmethod
     def SET_COMPLETED(value: bool) -> dict[str, str]:
         """Is activity completed ('Y' or 'N')."""
-        return {ACTIVITY_FIELD.COMPLETED: 'Y' if value else 'N'}
+        return {ACTIVITY_FIELD.COMPLETED: "Y" if value else "N"}
 
     @staticmethod
     def SET_STATUS(value: int) -> dict[str, int]:
@@ -1802,25 +1849,25 @@ class Activity(BaseBitrixObject):
         """Activity location (for meetings)."""
         return {ACTIVITY_FIELD.LOCATION: str(value)}
 
-    # @staticmethod
-    # def SET_CREATED(value: datetime | str) -> dict[str, str]:
-    #     """Creation date (read-only)."""
-    #     return {ACTIVITY_FIELD.CREATED: value if isinstance(value, str) else value.isoformat()}
+    @staticmethod
+    def SET_CREATED(value: datetime | str) -> dict[str, str]:
+        """Creation date (read-only)."""
+        return {ACTIVITY_FIELD.CREATED: value if isinstance(value, str) else value.isoformat()}
 
     @staticmethod
     def SET_AUTHOR_ID(value: int) -> dict[str, int]:
         """Creator of the activity."""
         return {ACTIVITY_FIELD.AUTHOR_ID: int(value)}
 
-    # @staticmethod
-    # def SET_LAST_UPDATED(value: datetime | str) -> dict[str, str]:
-    #     """Last update date (read-only)."""
-    #     return {ACTIVITY_FIELD.LAST_UPDATED: value if isinstance(value, str) else value.isoformat()}
-	#
-    # @staticmethod
-    # def SET_EDITOR_ID(value: int) -> dict[str, int]:
-    #     """Editor ID (read-only)."""
-    #     return {ACTIVITY_FIELD.EDITOR_ID: int(value)}
+    @staticmethod
+    def SET_LAST_UPDATED(value: datetime | str) -> dict[str, str]:
+        """Last update date (read-only)."""
+        return {ACTIVITY_FIELD.LAST_UPDATED: value if isinstance(value, str) else value.isoformat()}
+
+    @staticmethod
+    def SET_EDITOR_ID(value: int) -> dict[str, int]:
+        """Editor ID (read-only)."""
+        return {ACTIVITY_FIELD.EDITOR_ID: int(value)}
 
     @staticmethod
     def SET_SETTINGS(value: dict) -> dict[str, dict]:
@@ -1887,10 +1934,10 @@ class Activity(BaseBitrixObject):
         """Autocomplete rule."""
         return {ACTIVITY_FIELD.AUTOCOMPLETE_RULE: int(value)}
 
-    # @staticmethod
-    # def SET_BINDINGS(value: list[dict]) -> dict[str, list[dict]]:
-    #     """Activity bindings (crm_activity_binding)."""
-    #     return {ACTIVITY_FIELD.BINDINGS: value}
+    @staticmethod
+    def SET_BINDINGS(value: list[dict]) -> dict[str, list[dict]]:
+        """Activity bindings (crm_activity_binding)."""
+        return {ACTIVITY_FIELD.BINDINGS: value}
 
     @staticmethod
     def SET_COMMUNICATIONS(value: list[dict]) -> dict[str, list[dict]]:
@@ -1907,7 +1954,7 @@ class Activity(BaseBitrixObject):
         """WebDAV elements (diskfile, deprecated)."""
         return {ACTIVITY_FIELD.WEBDAV_ELEMENTS: value}
 
-    # @staticmethod
-    # def SET_IS_INCOMING_CHANNEL(value: bool) -> dict[str, str]:
-    #     """Is incoming channel ('Y' or 'N')."""
-    #     return {ACTIVITY_FIELD.IS_INCOMING_CHANNEL: 'Y' if value else 'N'}
+    @staticmethod
+    def SET_IS_INCOMING_CHANNEL(value: bool) -> dict[str, str]:
+        """Is incoming channel ('Y' or 'N')."""
+        return {ACTIVITY_FIELD.IS_INCOMING_CHANNEL: 'Y' if value else 'N'}

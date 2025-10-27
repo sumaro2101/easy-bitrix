@@ -1,7 +1,11 @@
 class ItemField:
     @property
     def ID(self) -> str:
-        return 'ID'
+        return 'id'
+
+    @property
+    def TITLE(self) -> str:
+        return 'title'
 
     @property
     def ENTITY_TYPE_ID(self) -> str:
@@ -10,6 +14,10 @@ class ItemField:
     @property
     def USE_ORIGINAL_UF_NAMES(self):
         return 'useOriginalUfNames'
+
+    @property
+    def CREATED_TIME(self):
+        return 'createdTime'
 
 
 class DealField:

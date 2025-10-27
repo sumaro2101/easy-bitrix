@@ -1,3 +1,4 @@
+from typing import Any
 from .common import FilterTo, LogicErrors, OrderTo
 from .error import FilterParameterError
 
@@ -69,6 +70,19 @@ class OrderOperations:
     @staticmethod
     def DESCENDING_ORDER(key: str) -> dict[str, str]:
         return {key: OrderTo.DESCENDING_ORDER.value}
+
+
+class Logic:
+    OR_OPERATOR: dict[str, str] = dict(logic='OR')
+
+    @classmethod
+    def OR_(cls, params: list[dict[str, Any]]) -> dict[str, Any]:
+        or_logic = dict(**cls.OR_OPERATOR)
+        counter = 0
+        for param in params:
+            or_logic.update({counter: param})
+            counter += 1
+        return {0: or_logic}
 
 
 def _like_operation[T: dict[str, str]](param: T,
