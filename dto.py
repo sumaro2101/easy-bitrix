@@ -14,7 +14,7 @@ class IDAddition:
 
 @dataclass
 class EntityTypeIdAddtion:
-    entityTypeId: int
+    entityTypeId: int = field(default=0)
 
 
 @dataclass
@@ -26,13 +26,18 @@ class SelectListData(SelectData):
 
 
 @dataclass
+class SelectListItemData(EntityTypeIdAddtion, SelectListData):
+    useOriginalUfNames: Literal['Y', 'N'] = field(default='N')
+
+
+@dataclass
 class SelectGetData(IDAddition, SelectData):
     ...
 
 
 @dataclass
-class SelectGetItemData(IDAddition, SelectData):
-    ...
+class SelectGetItemData(EntityTypeIdAddtion, IDAddition, SelectData):
+    useOriginalUfNames: Literal['Y', 'N'] = field(default='N')
 
 
 @dataclass
@@ -52,9 +57,19 @@ class AddData(SelectData):
 
 
 @dataclass
+class AddItemData(EntityTypeIdAddtion, AddData):
+    ...
+
+
+@dataclass
 class UpdateData(IDAddition, SelectData):
     fields: dict[str, str | int | float] = field(default_factory=dict())
     params: dict[str, str] = field(default_factory=dict())
+
+
+@dataclass
+class UpdateItemData(EntityTypeIdAddtion, UpdateData):
+    ...
 
 
 @dataclass
@@ -63,7 +78,7 @@ class DeleteData(IDAddition, SelectData):
 
 
 @dataclass
-class DeleteItemData(EntityTypeIdAddtion, SelectData):
+class DeleteItemData(EntityTypeIdAddtion, DeleteData):
     ...
 
 

@@ -40,7 +40,7 @@ def main():
         filter=[FilterOperation.END_LIKE(Deal.SET_TITLE('_like'))],
         order=[OrderOperations.DESCENDING_ORDER(Deal.DATE_CREATE)],
     ), options=options)
-    print(f'Status is: {response.code}\nResponse is: {response.data}")
+    print(f'Status is: {response.code}\nResponse is: {response.data}')
 
 main()
 ```

@@ -153,6 +153,7 @@ class HTTPClient:
     def _handle_request_error(self, e: Exception) -> NoReturn:
         msg = (
             'Unexpected error communication with Bitrix24.'
+            f'Message: {str(e.args)}'
         )
         err = f'A {type(e).__name__} was raised'
         should_retry = type(e) not in [AttributeError,
