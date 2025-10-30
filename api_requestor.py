@@ -1,3 +1,4 @@
+import time
 from typing import Any, ClassVar
 
 from .http_client import HTTPClient
@@ -10,6 +11,7 @@ from .response_object import BitrixResponse
 
 class APIRequestor:
     _instance: ClassVar['APIRequestor|None'] = None
+    RPS = 1 / 5
 
     def __init__(self, options: RequestorOptions | None = None,
                  client: HTTPClient | None = None,
@@ -41,13 +43,27 @@ class APIRequestor:
                 bitrix_address: str | None, params=None,
                 options: RequestOptions | None = None,
                 ) -> BitrixResponse:
+        method = params.method
         requestor = self._replace_options(options)
+        start_time = time.perf_counter()
         raw_body, raw_code = requestor.request_raw(
             bitrix_address=bitrix_address,
             params=params,
             options=options,
         )
+        end_time = time.perf_counter()
+        count_time = end_time - start_time
+        log_info('Count time request', time=count_time)
         response = self._switch_to_object(raw_body, raw_code)
+        if response.next is not None:
+            params.start = response.next
+            params.method = method
+            if count_time < self.RPS:
+                delay_time = self.RPS - count_time
+                log_debug('Have time delay', delay=delay_time)
+                time.sleep(delay_time)
+            next_response = self.request(bitrix_address, params, options)
+            response.add_data(next_response.raw_data)
         return response
 
     async def request_async(self,
@@ -150,7 +166,7 @@ class APIRequestor:
                 body = body.decode('utf-8')
             response = BitrixResponse(
                 code=code,
-                body=body,
+                raw_data=body,
             )
         except Exception:
             raise APIError(
