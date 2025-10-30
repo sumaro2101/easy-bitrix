@@ -1,4 +1,4 @@
-from typing import Any, ClassVar, Literal
+from typing import Any, ClassVar, Literal, TypeAlias, TypeVar
 
 from datetime import datetime
 
@@ -14,6 +14,9 @@ from .fields import (
 from .common import LogicErrors, BitrixMethods, BitrixParams, BitrixCRMTypes
 from . import dto
 from .parameters import Select, Filter, Order, Fields
+
+StrAndList: TypeAlias = str | list[str]
+T = TypeVar("T")
 
 
 class BaseBitrixObject:
@@ -196,7 +199,7 @@ class Item(BaseBitrixObject):
         return dto.DeleteItemData(entityTypeId=type_id, **data.__dict__)
 
 
-class Deal[T](BaseBitrixObject):
+class Deal(BaseBitrixObject):
     """
     The Deal class provides static methods for formatting Bitrix24 product field parameters.
     Each method corresponds to a field in the PRODUCT_FIELD class and returns a string representation
@@ -260,9 +263,9 @@ class Deal[T](BaseBitrixObject):
         return {DEAL_FIELD.ID: value}
 
     @staticmethod
-    def SET_TITLE(value: T) -> dict[str, T]:
+    def SET_TITLE(value: StrAndList) -> dict[str, StrAndList]:
         """Title of the deal."""
-        return {DEAL_FIELD.TITLE: value}
+        return {DEAL_FIELD.TITLE: str(value)}
 
     @staticmethod
     def SET_TYPE_ID(value: T | list[T]) -> dict[str, T | list[T]]:
@@ -909,13 +912,13 @@ class Lead(BaseBitrixObject):
 
     @staticmethod
     def SET_IS_RETURN_CUSTOMER(value: bool) -> dict[str, str]:
-    	return {LEAD_FIELD.IS_RETURN_CUSTOMER: 'Y' if value else 'N'}
+        return {LEAD_FIELD.IS_RETURN_CUSTOMER: "Y" if value else "N"}
 
     @staticmethod
     def SET_DATE_CLOSED(value: datetime | str) -> dict[str, str]:
-    	if isinstance(value, str):
-    		value = datetime.fromisoformat(value)
-    	return {LEAD_FIELD.DATE_CLOSED: value.isoformat()}
+        if isinstance(value, str):
+            value = datetime.fromisoformat(value)
+        return {LEAD_FIELD.DATE_CLOSED: value.isoformat()}
 
     @staticmethod
     def SET_ORIGINATOR_ID(value: str) -> dict[str, str]:
@@ -947,13 +950,13 @@ class Lead(BaseBitrixObject):
 
     @staticmethod
     def SET_LAST_ACTIVITY_TIME(value: datetime | str) -> dict[str, str]:
-    	if isinstance(value, str):
-    		value = datetime.fromisoformat(value)
-    	return {LEAD_FIELD.LAST_ACTIVITY_TIME: value.isoformat()}
+        if isinstance(value, str):
+            value = datetime.fromisoformat(value)
+        return {LEAD_FIELD.LAST_ACTIVITY_TIME: value.isoformat()}
 
     @staticmethod
     def SET_LAST_ACTIVITY_BY(value: str) -> dict[str, str]:
-    	return {LEAD_FIELD.LAST_ACTIVITY_BY: value}
+        return {LEAD_FIELD.LAST_ACTIVITY_BY: value}
 
     # Множественные поля
     @staticmethod
@@ -1042,7 +1045,7 @@ class Company(BaseBitrixObject):
 
     @staticmethod
     def SET_ID(value: int) -> dict[str, int]:
-        return {'ID': value}
+        return {"ID": value}
 
     @staticmethod
     def SET_TITLE(value: str) -> dict[str, str]:
@@ -1162,15 +1165,15 @@ class Company(BaseBitrixObject):
 
     @staticmethod
     def SET_HAS_PHONE(value: str) -> dict[str, str]:
-        return {'HAS_PHONE': value}
+        return {"HAS_PHONE": value}
 
     @staticmethod
     def SET_HAS_EMAIL(value: str) -> dict[str, str]:
-        return {'HAS_EMAIL': value}
+        return {"HAS_EMAIL": value}
 
     @staticmethod
     def SET_HAS_IMOL(value: str) -> dict[str, str]:
-        return {'HAS_IMOL': value}
+        return {"HAS_IMOL": value}
 
     @staticmethod
     def SET_IS_MY_COMPANY(value: str) -> dict[str, str]:
@@ -1182,19 +1185,19 @@ class Company(BaseBitrixObject):
 
     @staticmethod
     def SET_CREATED_BY_ID(value: int) -> dict[str, int]:
-    	return {'CREATED_BY_ID': value}
+        return {"CREATED_BY_ID": value}
 
     @staticmethod
     def SET_MODIFY_BY_ID(value: int) -> dict[str, int]:
-    	return {'MODIFY_BY_ID': value}
+        return {"MODIFY_BY_ID": value}
 
     @staticmethod
     def SET_DATE_CREATE(value: str) -> dict[str, str]:
-    	return {'DATE_CREATE': value}
+        return {"DATE_CREATE": value}
 
     @staticmethod
     def SET_DATE_MODIFY(value: str) -> dict[str, str]:
-    	return {'DATE_MODIFY': value}
+        return {"DATE_MODIFY": value}
 
     @staticmethod
     def SET_CONTACT_ID(value: str) -> dict[str, str]:
@@ -1202,7 +1205,7 @@ class Company(BaseBitrixObject):
 
     @staticmethod
     def SET_LEAD_ID(value: int) -> dict[str, int]:
-    	return {'LEAD_ID': value}
+        return {"LEAD_ID": value}
 
     @staticmethod
     def SET_ORIGINATOR_ID(value: str) -> dict[str, str]:
@@ -1242,11 +1245,11 @@ class Company(BaseBitrixObject):
 
     @staticmethod
     def SET_LAST_ACTIVITY_TIME(value: str) -> dict[str, str]:
-    	return {'LAST_ACTIVITY_TIME': value}
+        return {"LAST_ACTIVITY_TIME": value}
 
     @staticmethod
     def SET_LAST_ACTIVITY_BY(value: str) -> dict[str, str]:
-    	return {'LAST_ACTIVITY_BY': value}
+        return {"LAST_ACTIVITY_BY": value}
 
     @staticmethod
     def SET_PHONE(value: list[dict]) -> dict[str, list[dict]]:
@@ -1852,7 +1855,11 @@ class Activity(BaseBitrixObject):
     @staticmethod
     def SET_CREATED(value: datetime | str) -> dict[str, str]:
         """Creation date (read-only)."""
-        return {ACTIVITY_FIELD.CREATED: value if isinstance(value, str) else value.isoformat()}
+        return {
+            ACTIVITY_FIELD.CREATED: (
+                value if isinstance(value, str) else value.isoformat()
+            )
+        }
 
     @staticmethod
     def SET_AUTHOR_ID(value: int) -> dict[str, int]:
@@ -1862,7 +1869,11 @@ class Activity(BaseBitrixObject):
     @staticmethod
     def SET_LAST_UPDATED(value: datetime | str) -> dict[str, str]:
         """Last update date (read-only)."""
-        return {ACTIVITY_FIELD.LAST_UPDATED: value if isinstance(value, str) else value.isoformat()}
+        return {
+            ACTIVITY_FIELD.LAST_UPDATED: (
+                value if isinstance(value, str) else value.isoformat()
+            )
+        }
 
     @staticmethod
     def SET_EDITOR_ID(value: int) -> dict[str, int]:
@@ -1957,4 +1968,4 @@ class Activity(BaseBitrixObject):
     @staticmethod
     def SET_IS_INCOMING_CHANNEL(value: bool) -> dict[str, str]:
         """Is incoming channel ('Y' or 'N')."""
-        return {ACTIVITY_FIELD.IS_INCOMING_CHANNEL: 'Y' if value else 'N'}
+        return {ACTIVITY_FIELD.IS_INCOMING_CHANNEL: "Y" if value else "N"}
