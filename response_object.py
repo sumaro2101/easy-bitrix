@@ -20,16 +20,19 @@ class BitrixResponse:
             if 'result' in self.data:
                 self.total = self.data.get('total')
                 self.time = self.data.get('time')
-                self.data = self.data.get('result')
 
     def add_data(self, raw_data: str):
         data = json.loads(raw_data)
+        print(self.data)
         self.next: int | None = self.data.get('next')
         if 'error' in data:
             self.error = data.get('error')
         else:
             if 'result' in data:
-                self.data['items'].extend(data['result']['items'])
+                if data.get('items'):
+                    self.data['result']['items'].extend(data['result']['items'])
+                else:
+                    self.data['result']['items'].extend(data['result'])
                 data['result'] = self.data
                 data['time'] = self.time
                 self.raw_data = json.dumps(data)
