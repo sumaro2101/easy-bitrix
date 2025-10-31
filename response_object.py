@@ -34,7 +34,7 @@ class BitrixResponse(Sequence):
                     has_items = self.data.get('items')
                 except AttributeError:
                     has_items = False
-                if not isinstance(data['result', list]) and data['result'].get('items'):
+                if not isinstance(data['result'], list) and data['result'].get('items'):
                     if has_items:
                         self.data['items'].extend(data['result']['items'])
                     else:
