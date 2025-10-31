@@ -8,7 +8,7 @@ import easy_bitrix
 from typing import NoReturn
 
 
-LOG_FORMAT = '%(asctime)s [%(levelname)s] %(name)s: %(messagee)s'
+LOG_FORMAT = '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
 NAME_LOGGER = 'easy-bitrix'
 BITRIX_LOG = os.getenv('BITRIX_LOG')
 
