@@ -1,7 +1,8 @@
 import json
+from collections.abc import Sequence
 
 
-class BitrixResponse:
+class BitrixResponse(Sequence):
     code: int
     raw_data: str
     data: object
@@ -32,18 +33,33 @@ class BitrixResponse:
                 has_items = self.data.get('items')
                 if data['result'].get('items'):
                     if has_items:
-                        print(f'35 extend {data['result']['items']}')
                         self.data['items'].extend(data['result']['items'])
                     else:
-                        print(f'38 extend {data['result']['items']}')
                         self.data.extend(data['result']['items'])
                 else:
                     if has_items:
-                        print(f'42 extend {data['result']}')
                         self.data['items'].extend(data['result'])
                     else:
-                        print(f'45 extend {data['result']}')
                         self.data.extend(data['result'])
                 data['result'] = self.data
                 data['time'] = self.time
                 self.raw_data = json.dumps(data)
+
+    def __iter__(self):
+        if self.data.get('items'):
+            return iter(self.data['items'])
+        elif self.data.get('item'):
+            return iter([self.data['item']])
+        return iter(self.data)
+
+    def __getitem__(self, key):
+        if self.data.get('items'):
+            return self.data['items'][key]
+        elif self.data.get('item'):
+            return self.data['item']
+        return self.data[key]
+
+    def __len__(self):
+        if self.data.get('items'):
+            return len(self.data['items'])
+        return len(self.data)
