@@ -49,20 +49,23 @@ class BitrixResponse(Sequence):
                 self.raw_data = json.dumps(data)
 
     def __iter__(self):
-        if not isinstance(self.data, list) and self.data.get('items'):
+        if self._check_items('items'):
             return iter(self.data['items'])
-        elif not isinstance(self.data, list) and self.data.get('item'):
+        elif self._check_items('item'):
             return iter([self.data['item']])
         return iter(self.data)
 
     def __getitem__(self, key):
-        if not isinstance(self.data, list) and self.data.get('items'):
+        if self._check_items('items'):
             return self.data['items'][key]
-        elif not isinstance(self.data, list) and self.data.get('item'):
+        elif self._check_items('item'):
             return self.data['item']
         return self.data[key]
 
     def __len__(self):
-        if not isinstance(self.data, list) and self.data.get('items'):
+        if self._check_items('items'):
             return len(self.data['items'])
         return len(self.data)
+
+    def _check_items(self, name, class_=list) -> bool:
+        return not isinstance(self.data, class_) and self.data.get(name) is not None
